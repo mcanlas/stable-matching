@@ -8,16 +8,17 @@ object StableMatcherSuite extends FunSuite:
     val expected =
       Nil
 
-    val found =
+    val res =
       StableMatcher.Monopartite.createMatches(Set.empty[String], Map.empty[String, List[String]], Order[String])
 
-    expect.eql(expected, found)
+    whenSuccess(res): found =>
+      expect.eql(expected, found)
 
   test("Bipartite API design"):
     val expected =
       Nil
 
-    val found =
+    val res =
       StableMatcher
         .Bipartite
         .createMatches(
@@ -29,4 +30,5 @@ object StableMatcherSuite extends FunSuite:
           Order[String]
         )
 
-    expect.eql(expected, found)
+    whenSuccess(res): found =>
+      expect.eql(expected, found)
