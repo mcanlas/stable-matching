@@ -2,6 +2,7 @@ package com.htmlism.stablematching.core
 
 import cats.*
 import cats.data.*
+import cats.syntax.all.*
 
 object StableMatcher:
   object Monopartite:
@@ -17,10 +18,22 @@ object StableMatcher:
           Error.UnsupportedPopulationNumber(population.size)
         )
 
-      for _ <- validatePopulationSize(population)
+      def validatePreferenceExists(xs: Map[A, NonEmptyList[A]])(x: A) =
+        if xs.contains(x) then ().validNec
+        else x.toString.invalidNec
+
+      for
+        pop <- validatePopulationSize(population)
+
+        _ <- pop
+          .toList
+          .traverse(validatePreferenceExists(preferences))
+          .as(preferences)
+          .toEither
+          .leftMap(xs => Error.MissingPreferences(xs.mkString_(", ")))
       yield Nil
 
-    // TODO validate preference exists as valid nec
+    // TODO apply algorithm is a list/recursive
 
     enum Error:
       case UnsupportedPopulationNumber(n: Int)
