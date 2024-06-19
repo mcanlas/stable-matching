@@ -1,6 +1,7 @@
 package com.htmlism.stablematching.core
 
 import cats.*
+import cats.data.*
 import weaver.*
 
 object StableMatcherSuite extends FunSuite:
@@ -9,7 +10,7 @@ object StableMatcherSuite extends FunSuite:
       Nil
 
     val res =
-      StableMatcher.Monopartite.createMatches(Set.empty[String], Map.empty[String, List[String]], Order[String])
+      StableMatcher.Monopartite.createMatches(Set.empty[String], Map.empty[String, NonEmptyList[String]], Order[String])
 
     whenSuccess(res): found =>
       expect.eql(expected, found)
@@ -24,8 +25,8 @@ object StableMatcherSuite extends FunSuite:
         .createMatches(
           Set.empty[String],
           Set.empty[String],
-          Map.empty[String, List[String]],
-          Map.empty[String, List[String]],
+          Map.empty[String, NonEmptyList[String]],
+          Map.empty[String, NonEmptyList[String]],
           Order[String],
           Order[String]
         )

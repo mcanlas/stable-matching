@@ -1,12 +1,13 @@
 package com.htmlism.stablematching.core
 
 import cats.*
+import cats.data.*
 
 object StableMatcher:
   object Monopartite:
     def createMatches[A: Eq](
         population: Set[A],
-        preferences: Map[A, List[A]],
+        preferences: Map[A, NonEmptyList[A]],
         order: Order[A]
     ): Either[Error, List[String]] =
       for _ <- validatePopulationSize(population)
@@ -19,6 +20,8 @@ object StableMatcher:
         Error.UnsupportedPopulationNumber(population.size)
       )
 
+    // TODO validate preference exists as valid nec
+
     enum Error:
       case UnsupportedPopulationNumber(n: Int)
       case MissingPreferences(member: String)
@@ -27,8 +30,8 @@ object StableMatcher:
     def createMatches[A: Eq, B: Eq](
         proposerPopulation: Set[A],
         acceptorPopulation: Set[B],
-        proposerPreferences: Map[A, List[B]],
-        acceptorPreferences: Map[B, List[A]],
+        proposerPreferences: Map[A, NonEmptyList[B]],
+        acceptorPreferences: Map[B, NonEmptyList[A]],
         proposerOrder: Order[A],
         acceptorOrder: Order[B]
     ): Either[Error, List[String]] =
