@@ -10,15 +10,15 @@ object StableMatcher:
         preferences: Map[A, NonEmptyList[A]],
         order: Order[A]
     ): Either[Error, List[String]] =
+      def validatePopulationSize(population: Set[A]) =
+        Either.cond(
+          population.size % 2 == 0,
+          population,
+          Error.UnsupportedPopulationNumber(population.size)
+        )
+
       for _ <- validatePopulationSize(population)
       yield Nil
-
-    private def validatePopulationSize[A](population: Set[A]) =
-      Either.cond(
-        population.size % 2 == 0,
-        population,
-        Error.UnsupportedPopulationNumber(population.size)
-      )
 
     // TODO validate preference exists as valid nec
 
@@ -35,15 +35,15 @@ object StableMatcher:
         proposerOrder: Order[A],
         acceptorOrder: Order[B]
     ): Either[Error, List[String]] =
+      def validatePopulationSizes(xs: Set[A], ys: Set[B]) =
+        Either.cond(
+          xs.size == ys.size,
+          xs -> ys,
+          Error.MismatchedPopulationSizes(xs.size, ys.size)
+        )
+
       for (xs, ys) <- validatePopulationSizes(proposerPopulation, acceptorPopulation)
       yield Nil
-
-    private def validatePopulationSizes(xs: Set[?], ys: Set[?]) =
-      Either.cond(
-        xs.size == ys.size,
-        xs -> ys,
-        Error.MismatchedPopulationSizes(xs.size, ys.size)
-      )
 
     enum Error:
       case MismatchedPopulationSizes(proposers: Int, acceptors: Int)
