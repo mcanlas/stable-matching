@@ -10,7 +10,7 @@ object MonopartiteMatcherSuite extends FunSuite:
       Nil
 
     val res =
-      StableMatcher.Monopartite.createMatches(Set.empty[String], Map.empty[String, NonEmptyList[String]], Order[String])
+      MonopartiteMatcher.createMatches(Set.empty[String], Map.empty[String, NonEmptyList[String]], Order[String])
 
     whenSuccess(res): found =>
       expect.eql(expected, found)

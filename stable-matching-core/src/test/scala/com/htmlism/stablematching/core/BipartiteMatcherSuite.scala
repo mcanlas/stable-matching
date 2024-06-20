@@ -10,8 +10,7 @@ object BipartiteMatcherSuite extends FunSuite:
       Nil
 
     val res =
-      StableMatcher
-        .Bipartite
+      BipartiteMatcher
         .createMatches(
           Set.empty[String],
           Set.empty[String],
