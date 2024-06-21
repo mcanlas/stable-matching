@@ -5,7 +5,7 @@ import cats.data.*
 import weaver.*
 
 object BipartiteMatcherSuite extends FunSuite:
-  test("Bipartite API design"):
+  test("Matcher requires proposers and acceptors of the same size".ignore):
     val expected =
       Nil
 

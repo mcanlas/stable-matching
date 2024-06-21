@@ -14,7 +14,7 @@ object MonopartiteMatcher:
       Either.cond(
         population.size % 2 == 0,
         population,
-        Error.UnsupportedPopulationNumber(population.size)
+        Error.UnsupportedPopulationSize(population.size)
       )
 
     def validatePreferenceExists(xs: Map[A, NonEmptyList[A]])(x: A) =
@@ -35,5 +35,5 @@ object MonopartiteMatcher:
   // TODO apply algorithm is a list/recursive
 
   enum Error:
-    case UnsupportedPopulationNumber(n: Int)
+    case UnsupportedPopulationSize(n: Int)
     case MissingPreferences(member: String)

@@ -5,7 +5,7 @@ import cats.data.*
 import weaver.*
 
 object MonopartiteMatcherSuite extends FunSuite:
-  test("Monopartite API design"):
+  test("Matcher requires an even population".ignore):
     val expected =
       Nil
 
