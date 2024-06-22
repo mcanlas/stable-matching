@@ -5,12 +5,14 @@ import cats.data.*
 import weaver.*
 
 object MonopartiteMatcherSuite extends FunSuite:
-  test("Matcher requires an even population".ignore):
-    val expected =
-      Nil
+  test("Matcher requires an even population"):
+    val oddPopulation =
+      Set("a")
 
     val res =
-      MonopartiteMatcher.createMatches(Set.empty[String], Map.empty[String, NonEmptyList[String]], Order[String])
+      MonopartiteMatcher
+        .createMatches(oddPopulation, Map.empty[String, NonEmptyList[String]], Order[String])
 
-    whenSuccess(res): found =>
-      expect.eql(expected, found)
+    matches(res):
+      case Left(MonopartiteMatcher.Error.UnsupportedPopulationSize(n)) =>
+        expect.eql(oddPopulation.size, n)

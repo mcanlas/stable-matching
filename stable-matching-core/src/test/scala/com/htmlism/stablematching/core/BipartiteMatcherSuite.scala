@@ -5,20 +5,25 @@ import cats.data.*
 import weaver.*
 
 object BipartiteMatcherSuite extends FunSuite:
-  test("Matcher requires proposers and acceptors of the same size".ignore):
-    val expected =
-      Nil
+  test("Matcher requires proposers and acceptors of the same size"):
+    val proposers =
+      Set("a")
+
+    val acceptors =
+      Set(1, 2)
 
     val res =
       BipartiteMatcher
         .createMatches(
-          Set.empty[String],
-          Set.empty[String],
-          Map.empty[String, NonEmptyList[String]],
-          Map.empty[String, NonEmptyList[String]],
+          proposers,
+          acceptors,
+          Map.empty[String, NonEmptyList[Int]],
+          Map.empty[Int, NonEmptyList[String]],
           Order[String],
-          Order[String]
+          Order[Int]
         )
 
-    whenSuccess(res): found =>
-      expect.eql(expected, found)
+    matches(res):
+      case Left(BipartiteMatcher.Error.MismatchedPopulationSizes(x, y)) =>
+        expect.eql(proposers.size, x) and
+          expect.eql(acceptors.size, y)
