@@ -25,4 +25,5 @@ object BipartiteMatcher:
 
   enum Error:
     case MismatchedPopulationSizes(proposers: Int, acceptors: Int)
-    case MissingPreferences(member: String)
+    case MissingPreferenceList(member: String)
+    case IncompletePreferenceList()
