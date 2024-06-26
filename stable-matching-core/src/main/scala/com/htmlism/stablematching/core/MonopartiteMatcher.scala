@@ -29,12 +29,12 @@ object MonopartiteMatcher:
         .traverse(validatePreferenceExists(preferences))
         .as(preferences)
         .toEither
-        .leftMap(xs => Error.MissingPreferenceList(xs.mkString_(", ")))
+        .leftMap(Error.MissingPreferenceList(_))
     yield Nil
 
   // TODO apply algorithm is a list/recursive
 
   enum Error:
     case UnsupportedPopulationSize(n: Int)
-    case MissingPreferenceList(member: String)
+    case MissingPreferenceList(xs: NonEmptyChain[String])
     case IncompletePreferenceList()
