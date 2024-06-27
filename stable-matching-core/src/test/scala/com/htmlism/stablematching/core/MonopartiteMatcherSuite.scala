@@ -16,3 +16,15 @@ object MonopartiteMatcherSuite extends FunSuite:
     matches(res):
       case Left(MonopartiteMatcher.Error.UnsupportedPopulationSize(n)) =>
         expect.eql(oddPopulation.size, n)
+
+  test("Matcher requires a preference list for every member"):
+    val population =
+      Set("a", "b", "c", "d")
+
+    val res =
+      MonopartiteMatcher
+        .createMatches(population, Map("a" -> NonEmptyList.one("b")), Order[String])
+
+    matches(res):
+      case Left(MonopartiteMatcher.Error.MissingPreferenceList(xs)) =>
+        expect.eql(NonEmptyChain.of("b", "c", "d"), xs)
