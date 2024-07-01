@@ -4,6 +4,9 @@ import cats.*
 import cats.data.*
 import cats.syntax.all.*
 
+/**
+  * Also referred to as the "stable roommates problem" https://en.wikipedia.org/wiki/Stable_roommates_problem
+  */
 object MonopartiteMatcher:
   def createMatches[A: Eq](
       population: Set[A],
