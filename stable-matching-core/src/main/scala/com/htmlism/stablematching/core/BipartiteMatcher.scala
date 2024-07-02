@@ -16,11 +16,28 @@ object BipartiteMatcher:
     def validatePopulationSizes(xs: Set[A], ys: Set[B]) =
       Either.cond(
         xs.size == ys.size,
-        xs -> ys,
+        (),
         Error.MismatchedPopulationSizes(xs.size, ys.size)
       )
 
-    for (xs, ys) <- validatePopulationSizes(proposerPopulation, acceptorPopulation)
+    for
+      _ <- validatePopulationSizes(proposerPopulation, acceptorPopulation)
+
+      _ <- proposerPopulation
+        .toList
+        .traverse: p =>
+          if proposerPreferences.contains(p) then ().validNec
+          else p.toString.invalidNec
+        .toEither
+        .leftMap(Error.MissingProposerPreferenceList(_))
+
+      _ <- acceptorPopulation
+        .toList
+        .traverse: p =>
+          if acceptorPreferences.contains(p) then ().validNec
+          else p.toString.invalidNec
+        .toEither
+        .leftMap(Error.MissingAcceptorPreferenceList(_))
     yield Nil
 
   enum Error:
