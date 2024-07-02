@@ -27,3 +27,9 @@ object BipartiteMatcherSuite extends FunSuite:
       case Left(BipartiteMatcher.Error.MismatchedPopulationSizes(x, y)) =>
         expect.eql(proposers.size, x) and
           expect.eql(acceptors.size, y)
+
+  test("Matcher requires a preference list for every proposer"):
+    expect.eql("TODO", "TODO")
+
+  test("Matcher requires a preference list for every acceptor"):
+    expect.eql("TODO", "TODO")
