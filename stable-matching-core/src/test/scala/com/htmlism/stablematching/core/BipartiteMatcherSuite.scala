@@ -17,8 +17,8 @@ object BipartiteMatcherSuite extends FunSuite:
         .createMatches(
           proposers,
           acceptors,
-          Map.empty[String, NonEmptyList[Int]],
-          Map.empty[Int, NonEmptyList[String]],
+          Map.empty,
+          Map.empty,
           Order[String],
           Order[Int]
         )
@@ -29,7 +29,46 @@ object BipartiteMatcherSuite extends FunSuite:
           expect.eql(acceptors.size, y)
 
   test("Matcher requires a preference list for every proposer"):
-    expect.eql("TODO", "TODO")
+    val proposers =
+      Set("a")
+
+    val acceptors =
+      Set(1)
+
+    val res =
+      BipartiteMatcher
+        .createMatches(
+          proposers,
+          acceptors,
+          Map.empty,
+          Map.empty,
+          Order[String],
+          Order[Int]
+        )
+
+    // TODO set input is non-deterministic to list
+    matches(res):
+      case Left(BipartiteMatcher.Error.MissingProposerPreferenceList(xs)) =>
+        expect.eql(NonEmptyChain.of("a"), xs)
 
   test("Matcher requires a preference list for every acceptor"):
-    expect.eql("TODO", "TODO")
+    val proposers =
+      Set("a")
+
+    val acceptors =
+      Set(1)
+
+    val res =
+      BipartiteMatcher
+        .createMatches(
+          proposers,
+          acceptors,
+          Map("a" -> NonEmptyList.of(1)),
+          Map.empty,
+          Order[String],
+          Order[Int]
+        )
+
+    matches(res):
+      case Left(BipartiteMatcher.Error.MissingAcceptorPreferenceList(xs)) =>
+        expect.eql(NonEmptyChain.of("1"), xs)
