@@ -27,4 +27,5 @@ object MonopartiteMatcherSuite extends FunSuite:
 
     matches(res):
       case Left(MonopartiteMatcher.Error.MissingPreferenceList(xs)) =>
-        expect.eql(NonEmptyChain.of("b", "c", "d"), xs)
+        // error list is non-deterministic from input set
+        expect.eql(Set("b", "c", "d"), xs.iterator.toSet)

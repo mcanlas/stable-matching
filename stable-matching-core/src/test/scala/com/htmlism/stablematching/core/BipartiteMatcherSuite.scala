@@ -46,10 +46,10 @@ object BipartiteMatcherSuite extends FunSuite:
           Order[Int]
         )
 
-    // TODO set input is non-deterministic to list
     matches(res):
       case Left(BipartiteMatcher.Error.MissingProposerPreferenceList(xs)) =>
-        expect.eql(NonEmptyChain.of("a"), xs)
+        // error list is non-deterministic from input set
+        expect.eql(Set("a"), xs.iterator.toSet)
 
   test("Matcher requires a preference list for every acceptor"):
     val proposers =
@@ -71,4 +71,5 @@ object BipartiteMatcherSuite extends FunSuite:
 
     matches(res):
       case Left(BipartiteMatcher.Error.MissingAcceptorPreferenceList(xs)) =>
-        expect.eql(NonEmptyChain.of("1"), xs)
+        // error list is non-deterministic from input set
+        expect.eql(Set("1"), xs.iterator.toSet)
