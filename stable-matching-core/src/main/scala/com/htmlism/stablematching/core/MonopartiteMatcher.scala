@@ -24,6 +24,20 @@ object MonopartiteMatcher:
       if xs.contains(x) then ().validNec
       else x.toString.invalidNec
 
+    def validateMemberIsInPreferences =
+      population
+        .toList
+        .mproduct(_ => preferences.toList)
+        .traverse:
+          case (p, (k, xs)) =>
+            if k == p then ().asRight
+            else
+              Either.cond(
+                xs.contains_(p),
+                (),
+                Error.IncompletePreferenceList(s"$p not in preference list of $k")
+              )
+
     for
       pop <- validatePopulationSize(population)
 
@@ -33,6 +47,8 @@ object MonopartiteMatcher:
         .as(preferences)
         .toEither
         .leftMap(Error.MissingPreferenceList(_))
+
+      _ <- validateMemberIsInPreferences
     yield Nil
 
   // TODO apply algorithm is a list/recursive
@@ -40,4 +56,4 @@ object MonopartiteMatcher:
   enum Error:
     case UnsupportedPopulationSize(n: Int)
     case MissingPreferenceList(xs: NonEmptyChain[String])
-    case IncompletePreferenceList()
+    case IncompletePreferenceList(err: String)
