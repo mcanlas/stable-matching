@@ -44,4 +44,5 @@ object BipartiteMatcher:
     case MismatchedPopulationSizes(proposers: Int, acceptors: Int)
     case MissingProposerPreferenceList(xs: NonEmptyChain[String])
     case MissingAcceptorPreferenceList(xs: NonEmptyChain[String])
-    case IncompletePreferenceList()
+    case IncompleteAcceptorsPreferenceList(proposer: String, acceptorKey: String)
+    case IncompleteProposersPreferenceList(acceptor: String, proposerKey: String)
