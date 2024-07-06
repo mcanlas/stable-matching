@@ -29,3 +29,23 @@ object MonopartiteMatcherSuite extends FunSuite:
       case Left(MonopartiteMatcher.Error.MissingPreferenceList(xs)) =>
         // error list is non-deterministic from input set
         expect.eql(Set("b", "c", "d"), xs.iterator.toSet)
+
+  test("Matcher requires every member to be in every other preference list"):
+    val population =
+      Set("a", "b")
+
+    val res =
+      MonopartiteMatcher
+        .createMatches(
+          population,
+          Map(
+            "a" -> NonEmptyList.one("b"),
+            "b" -> NonEmptyList.one("c")
+          ),
+          Order[String]
+        )
+
+    matches(res):
+      case Left(MonopartiteMatcher.Error.IncompletePreferenceList(p, k)) =>
+        expect.eql("a", p) and
+          expect.eql("b", k)

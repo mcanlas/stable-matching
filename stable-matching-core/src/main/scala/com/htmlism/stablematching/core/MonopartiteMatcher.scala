@@ -35,7 +35,7 @@ object MonopartiteMatcher:
               Either.cond(
                 xs.contains_(p),
                 (),
-                Error.IncompletePreferenceList(s"$p not in preference list of $k")
+                Error.IncompletePreferenceList(p.toString, k.toString)
               )
 
     for
@@ -56,4 +56,4 @@ object MonopartiteMatcher:
   enum Error:
     case UnsupportedPopulationSize(n: Int)
     case MissingPreferenceList(xs: NonEmptyChain[String])
-    case IncompletePreferenceList(err: String)
+    case IncompletePreferenceList(member: String, preferenceKey: String)
