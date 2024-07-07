@@ -20,6 +20,12 @@ object BipartiteMatcher:
         Error.MismatchedPopulationSizes(xs.size, ys.size)
       )
 
+    def validateProposersAreInPreferences =
+      ().asRight
+
+    def validateAcceptorsAreInPreferences =
+      ().asRight
+
     for
       _ <- validatePopulationSizes(proposerPopulation, acceptorPopulation)
 
@@ -38,6 +44,10 @@ object BipartiteMatcher:
           else p.toString.invalidNec
         .toEither
         .leftMap(Error.MissingAcceptorPreferenceList(_))
+
+      _ <- validateProposersAreInPreferences
+
+      _ <- validateAcceptorsAreInPreferences
     yield Nil
 
   enum Error:
