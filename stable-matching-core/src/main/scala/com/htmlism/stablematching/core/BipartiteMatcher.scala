@@ -6,8 +6,8 @@ import cats.syntax.all.*
 
 object BipartiteMatcher:
   def createMatches[A: Eq, B: Eq](
-      proposerPopulation: Set[A],
-      acceptorPopulation: Set[B],
+      proposers: Set[A],
+      acceptors: Set[B],
       proposerPreferences: Map[A, NonEmptyList[B]],
       acceptorPreferences: Map[B, NonEmptyList[A]],
       proposerOrder: Order[A],
@@ -27,9 +27,9 @@ object BipartiteMatcher:
       ().asRight
 
     for
-      _ <- validatePopulationSizes(proposerPopulation, acceptorPopulation)
+      _ <- validatePopulationSizes(proposers, acceptors)
 
-      _ <- proposerPopulation
+      _ <- proposers
         .toList
         .traverse: p =>
           if proposerPreferences.contains(p) then ().validNec
@@ -37,7 +37,7 @@ object BipartiteMatcher:
         .toEither
         .leftMap(Error.MissingProposerPreferenceList(_))
 
-      _ <- acceptorPopulation
+      _ <- acceptors
         .toList
         .traverse: p =>
           if acceptorPreferences.contains(p) then ().validNec

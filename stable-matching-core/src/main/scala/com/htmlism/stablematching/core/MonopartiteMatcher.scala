@@ -9,7 +9,7 @@ import cats.syntax.all.*
   */
 object MonopartiteMatcher:
   def createMatches[A: Eq](
-      population: Set[A],
+      members: Set[A],
       preferences: Map[A, NonEmptyList[A]],
       order: Order[A]
   ): Either[Error, List[String]] =
@@ -25,7 +25,7 @@ object MonopartiteMatcher:
       else x.toString.invalidNec
 
     def validateMemberIsInPreferences =
-      population
+      members
         .toList
         .mproduct(_ => preferences.toList)
         .traverse:
@@ -39,7 +39,7 @@ object MonopartiteMatcher:
               )
 
     for
-      pop <- validatePopulationSize(population)
+      pop <- validatePopulationSize(members)
 
       _ <- pop
         .toList
