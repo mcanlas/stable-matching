@@ -21,10 +21,18 @@ object BipartiteMatcher:
       )
 
     def validateProposersAreInPreferences =
-      ().asRight
+      proposers
+        .toList
+        .traverse: p =>
+          ().asRight
+        .void
 
     def validateAcceptorsAreInPreferences =
-      ().asRight
+      acceptors
+        .toList
+        .traverse: p =>
+          ().asRight
+        .void
 
     for
       _ <- validatePopulationSizes(proposers, acceptors)
