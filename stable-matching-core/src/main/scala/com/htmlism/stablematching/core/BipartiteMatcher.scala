@@ -23,14 +23,20 @@ object BipartiteMatcher:
     def validateProposersAreInPreferences =
       proposers
         .toList
-        .traverse: p =>
+        .mproduct(_ => acceptorPreferences.toList)
+        .traverse: (p, prefs) =>
+          val _ = (p, prefs)
+
           ().asRight
         .void
 
     def validateAcceptorsAreInPreferences =
       acceptors
         .toList
-        .traverse: p =>
+        .mproduct(_ => proposers.toList)
+        .traverse: (a, prefs) =>
+          val _ = (a, prefs)
+
           ().asRight
         .void
 
