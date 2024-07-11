@@ -24,20 +24,30 @@ object BipartiteMatcher:
       proposers
         .toList
         .mproduct(_ => acceptorPreferences.toList)
-        .traverse: (p, prefs) =>
-          val _ = (p, prefs)
-
-          ().asRight
+        .traverse:
+          case (p, (k, xs)) =>
+            if k == p then ().asRight
+            else
+              Either.cond(
+                xs.contains_(p),
+                (),
+                Error.IncompleteAcceptorsPreferenceList(p.toString, k.toString)
+              )
         .void
 
     def validateAcceptorsAreInPreferences =
       acceptors
         .toList
-        .mproduct(_ => proposers.toList)
-        .traverse: (a, prefs) =>
-          val _ = (a, prefs)
-
-          ().asRight
+        .mproduct(_ => proposerPreferences.toList)
+        .traverse:
+          case (a, (k, xs)) =>
+            if k == a then ().asRight
+            else
+              Either.cond(
+                xs.contains_(a),
+                (),
+                Error.IncompleteProposersPreferenceList(a.toString, k.toString)
+              )
         .void
 
     for
