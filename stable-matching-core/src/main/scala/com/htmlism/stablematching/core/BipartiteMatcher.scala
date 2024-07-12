@@ -26,13 +26,11 @@ object BipartiteMatcher:
         .mproduct(_ => acceptorPreferences.toList)
         .traverse:
           case (p, (k, xs)) =>
-            if k == p then ().asRight
-            else
-              Either.cond(
-                xs.contains_(p),
-                (),
-                Error.IncompleteAcceptorsPreferenceList(p.toString, k.toString)
-              )
+            Either.cond(
+              xs.contains_(p),
+              (),
+              Error.IncompleteAcceptorsPreferenceList(p.toString, k.toString)
+            )
         .void
 
     def validateAcceptorsAreInPreferences =
@@ -41,13 +39,11 @@ object BipartiteMatcher:
         .mproduct(_ => proposerPreferences.toList)
         .traverse:
           case (a, (k, xs)) =>
-            if k == a then ().asRight
-            else
-              Either.cond(
-                xs.contains_(a),
-                (),
-                Error.IncompleteProposersPreferenceList(a.toString, k.toString)
-              )
+            Either.cond(
+              xs.contains_(a),
+              (),
+              Error.IncompleteProposersPreferenceList(a.toString, k.toString)
+            )
         .void
 
     for

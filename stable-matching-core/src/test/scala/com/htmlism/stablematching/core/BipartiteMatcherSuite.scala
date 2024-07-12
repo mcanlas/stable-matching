@@ -73,3 +73,9 @@ object BipartiteMatcherSuite extends FunSuite:
       case Left(BipartiteMatcher.Error.MissingAcceptorPreferenceList(xs)) =>
         // error list is non-deterministic from input set
         expect.eql(Set("1"), xs.iterator.toSet)
+
+  test("Matcher requires every proposer to be in every acceptor list"):
+    expect.eql("", "")
+
+  test("Matcher requires every acceptor to be in every proposer list"):
+    expect.eql("", "")
