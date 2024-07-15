@@ -75,7 +75,47 @@ object BipartiteMatcherSuite extends FunSuite:
         expect.eql(Set("1"), xs.iterator.toSet)
 
   test("Matcher requires every proposer to be in every acceptor list"):
-    expect.eql("", "")
+    val proposers =
+      Set("a")
+
+    val acceptors =
+      Set(1)
+
+    val res =
+      BipartiteMatcher
+        .createMatches(
+          proposers,
+          acceptors,
+          Map("a" -> NonEmptyList.of(1)),
+          Map(1   -> NonEmptyList.of("invalid")),
+          Order[String],
+          Order[Int]
+        )
+
+    matches(res):
+      case Left(BipartiteMatcher.Error.IncompleteAcceptorsPreferenceList(p, k)) =>
+        expect.eql("a", p) and
+          expect.eql("1", k)
 
   test("Matcher requires every acceptor to be in every proposer list"):
-    expect.eql("", "")
+    val proposers =
+      Set("a")
+
+    val acceptors =
+      Set(1)
+
+    val res =
+      BipartiteMatcher
+        .createMatches(
+          proposers,
+          acceptors,
+          Map("a" -> NonEmptyList.of(12345)),
+          Map(1   -> NonEmptyList.of("a")),
+          Order[String],
+          Order[Int]
+        )
+
+    matches(res):
+      case Left(BipartiteMatcher.Error.IncompleteProposersPreferenceList(p, k)) =>
+        expect.eql("1", p) and
+          expect.eql("a", k)
