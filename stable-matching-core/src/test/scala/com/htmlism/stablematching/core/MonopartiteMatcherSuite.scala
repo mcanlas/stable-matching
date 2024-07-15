@@ -49,3 +49,6 @@ object MonopartiteMatcherSuite extends FunSuite:
       case Left(MonopartiteMatcher.Error.IncompletePreferenceList(p, k)) =>
         expect.eql("a", p) and
           expect.eql("b", k)
+
+  test("Empty input yields empty output"):
+    expect.eql("", "")

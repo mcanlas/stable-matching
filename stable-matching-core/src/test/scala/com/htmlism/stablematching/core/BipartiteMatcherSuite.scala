@@ -119,3 +119,6 @@ object BipartiteMatcherSuite extends FunSuite:
       case Left(BipartiteMatcher.Error.IncompleteProposersPreferenceList(p, k)) =>
         expect.eql("1", p) and
           expect.eql("a", k)
+
+  test("Empty input yields empty output"):
+    expect.eql("", "")
