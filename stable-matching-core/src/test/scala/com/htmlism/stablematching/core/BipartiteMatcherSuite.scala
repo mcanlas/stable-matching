@@ -121,4 +121,22 @@ object BipartiteMatcherSuite extends FunSuite:
           expect.eql("a", k)
 
   test("Empty input yields empty output"):
-    expect.eql("", "")
+    val proposers =
+      Set.empty[String]
+
+    val acceptors =
+      Set.empty[Int]
+
+    val res =
+      BipartiteMatcher
+        .createMatches(
+          proposers,
+          acceptors,
+          Map.empty,
+          Map.empty,
+          Order[String],
+          Order[Int]
+        )
+
+    whenSuccess(res): xs =>
+      expect.eql(Nil, xs)

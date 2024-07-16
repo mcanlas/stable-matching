@@ -51,4 +51,12 @@ object MonopartiteMatcherSuite extends FunSuite:
           expect.eql("b", k)
 
   test("Empty input yields empty output"):
-    expect.eql("", "")
+    val population =
+      Set.empty[String]
+
+    val res =
+      MonopartiteMatcher
+        .createMatches(population, Map.empty[String, NonEmptyList[String]], Order[String])
+
+    whenSuccess(res): xs =>
+      expect.eql(Nil, xs)
