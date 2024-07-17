@@ -60,3 +60,14 @@ object MonopartiteMatcherSuite extends FunSuite:
 
     whenSuccess(res): xs =>
       expect.eql(Nil, xs)
+
+  test("A trivial population of two has a trivial answer".ignore):
+    val population =
+      Set.empty[String]
+
+    val res =
+      MonopartiteMatcher
+        .createMatches(population, Map.empty[String, NonEmptyList[String]], Order[String])
+
+    whenSuccess(res): xs =>
+      expect.eql(Nil, xs)
