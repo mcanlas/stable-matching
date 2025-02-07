@@ -25,9 +25,8 @@ object MonopartiteMatcher:
       else x.toString.invalidNec
 
     def validateMemberIsInPreferences =
-      members
-        .toList
-        .mproduct(_ => preferences.toList)
+      (members.toList, preferences.toList)
+        .tupled
         .traverse:
           case (p, (k, xs)) =>
             if k == p then ().asRight

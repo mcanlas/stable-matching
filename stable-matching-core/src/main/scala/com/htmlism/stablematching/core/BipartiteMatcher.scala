@@ -21,9 +21,8 @@ object BipartiteMatcher:
       )
 
     def validateProposersAreInPreferences =
-      proposers
-        .toList
-        .mproduct(_ => acceptorPreferences.toList)
+      (proposers.toList, acceptorPreferences.toList)
+        .tupled
         .traverse:
           case (p, (k, xs)) =>
             Either.cond(
@@ -34,9 +33,8 @@ object BipartiteMatcher:
         .void
 
     def validateAcceptorsAreInPreferences =
-      acceptors
-        .toList
-        .mproduct(_ => proposerPreferences.toList)
+      (acceptors.toList, proposerPreferences.toList)
+        .tupled
         .traverse:
           case (a, (k, xs)) =>
             Either.cond(
