@@ -1,17 +1,23 @@
 package com.htmlism.stablematching.core
 
+import scala.collection.immutable.ListSet
+
 import cats.*
 import cats.data.*
 import cats.syntax.all.*
 
 object BipartiteMatcher:
+  /**
+    * @param proposers
+    *   An ordered, unique list of proposers. Ordering affects the results of the matching
+    * @param acceptors
+    *   An ordered, unique list of acceptors. Ordering affects the results of the matching
+    */
   def createMatches[A: Eq, B: Eq](
-      proposers: Set[A],
-      acceptors: Set[B],
+      proposers: ListSet[A],
+      acceptors: ListSet[B],
       proposerPreferences: Map[A, NonEmptyList[B]],
-      acceptorPreferences: Map[B, NonEmptyList[A]],
-      proposerOrder: Order[A],
-      acceptorOrder: Order[B]
+      acceptorPreferences: Map[B, NonEmptyList[A]]
   ): WriterT[[X] =>> Either[Error, X], Chain[String], List[String]] =
     def validatePopulationSizes(xs: Set[A], ys: Set[B]) =
       Either.cond(

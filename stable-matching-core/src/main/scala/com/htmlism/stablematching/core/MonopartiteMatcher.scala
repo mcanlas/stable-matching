@@ -1,5 +1,7 @@
 package com.htmlism.stablematching.core
 
+import scala.collection.immutable.ListSet
+
 import cats.*
 import cats.data.*
 import cats.syntax.all.*
@@ -8,10 +10,13 @@ import cats.syntax.all.*
   * Also referred to as the "stable roommates problem" https://en.wikipedia.org/wiki/Stable_roommates_problem
   */
 object MonopartiteMatcher:
+  /**
+    * @param members
+    *   An ordered, unique list of members. Ordering affects the results of the matching
+    */
   def createMatches[A: Eq](
-      members: Set[A],
-      preferences: Map[A, NonEmptyList[A]],
-      order: Order[A]
+      members: ListSet[A],
+      preferences: Map[A, NonEmptyList[A]]
   ): WriterT[[X] =>> Either[Error, X], Chain[String], List[String]] =
     def validatePopulationSize(population: Set[A]) =
       Either.cond(

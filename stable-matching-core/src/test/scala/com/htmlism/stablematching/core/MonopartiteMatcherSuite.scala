@@ -1,5 +1,7 @@
 package com.htmlism.stablematching.core
 
+import scala.collection.immutable.ListSet
+
 import cats.*
 import cats.data.*
 import weaver.*
@@ -7,11 +9,11 @@ import weaver.*
 object MonopartiteMatcherSuite extends FunSuite:
   test("Matcher requires an even population"):
     val oddPopulation =
-      Set("a")
+      ListSet("a")
 
     val res =
       MonopartiteMatcher
-        .createMatches(oddPopulation, Map.empty[String, NonEmptyList[String]], Order[String])
+        .createMatches(oddPopulation, Map.empty[String, NonEmptyList[String]])
         .run
 
     matches(res):
@@ -20,11 +22,11 @@ object MonopartiteMatcherSuite extends FunSuite:
 
   test("Matcher requires a preference list for every member"):
     val population =
-      Set("a", "b", "c", "d")
+      ListSet("a", "b", "c", "d")
 
     val res =
       MonopartiteMatcher
-        .createMatches(population, Map("a" -> NonEmptyList.one("b")), Order[String])
+        .createMatches(population, Map("a" -> NonEmptyList.one("b")))
         .run
 
     matches(res):
@@ -34,7 +36,7 @@ object MonopartiteMatcherSuite extends FunSuite:
 
   test("Matcher requires every member to be in every other preference list"):
     val population =
-      Set("a", "b")
+      ListSet("a", "b")
 
     val res =
       MonopartiteMatcher
@@ -43,8 +45,7 @@ object MonopartiteMatcherSuite extends FunSuite:
           Map(
             "a" -> NonEmptyList.one("b"),
             "b" -> NonEmptyList.one("c")
-          ),
-          Order[String]
+          )
         )
         .run
 
@@ -55,11 +56,11 @@ object MonopartiteMatcherSuite extends FunSuite:
 
   test("Empty input yields empty output"):
     val population =
-      Set.empty[String]
+      ListSet.empty[String]
 
     val res =
       MonopartiteMatcher
-        .createMatches(population, Map.empty[String, NonEmptyList[String]], Order[String])
+        .createMatches(population, Map.empty[String, NonEmptyList[String]])
         .run
 
     whenSuccess(res): (_, xs) =>
@@ -67,11 +68,11 @@ object MonopartiteMatcherSuite extends FunSuite:
 
   test("A trivial population of two has a trivial answer".ignore):
     val population =
-      Set.empty[String]
+      ListSet.empty[String]
 
     val res =
       MonopartiteMatcher
-        .createMatches(population, Map.empty[String, NonEmptyList[String]], Order[String])
+        .createMatches(population, Map.empty[String, NonEmptyList[String]])
         .run
 
     whenSuccess(res): (_, xs) =>
