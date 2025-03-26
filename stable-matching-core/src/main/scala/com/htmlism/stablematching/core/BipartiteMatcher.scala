@@ -71,7 +71,7 @@ object BipartiteMatcher:
 
       _ <- WriterT.liftF(validateAcceptorsAreInPreferences)
 
-      res <- WriterT.put(Nil)(Chain.one("nil"))
+      res <- WriterT.put(Nil)(Chain("nil"))
     yield res
 
   enum Error:

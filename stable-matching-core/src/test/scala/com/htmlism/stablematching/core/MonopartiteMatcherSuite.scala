@@ -12,6 +12,7 @@ object MonopartiteMatcherSuite extends FunSuite:
     val res =
       MonopartiteMatcher
         .createMatches(oddPopulation, Map.empty[String, NonEmptyList[String]], Order[String])
+        .run
 
     matches(res):
       case Left(MonopartiteMatcher.Error.UnsupportedPopulationSize(n)) =>
@@ -24,6 +25,7 @@ object MonopartiteMatcherSuite extends FunSuite:
     val res =
       MonopartiteMatcher
         .createMatches(population, Map("a" -> NonEmptyList.one("b")), Order[String])
+        .run
 
     matches(res):
       case Left(MonopartiteMatcher.Error.MissingPreferenceList(xs)) =>
@@ -44,6 +46,7 @@ object MonopartiteMatcherSuite extends FunSuite:
           ),
           Order[String]
         )
+        .run
 
     matches(res):
       case Left(MonopartiteMatcher.Error.IncompletePreferenceList(p, k)) =>
@@ -57,8 +60,9 @@ object MonopartiteMatcherSuite extends FunSuite:
     val res =
       MonopartiteMatcher
         .createMatches(population, Map.empty[String, NonEmptyList[String]], Order[String])
+        .run
 
-    whenSuccess(res): xs =>
+    whenSuccess(res): (_, xs) =>
       expect.eql(Nil, xs)
 
   test("A trivial population of two has a trivial answer".ignore):
@@ -68,6 +72,7 @@ object MonopartiteMatcherSuite extends FunSuite:
     val res =
       MonopartiteMatcher
         .createMatches(population, Map.empty[String, NonEmptyList[String]], Order[String])
+        .run
 
-    whenSuccess(res): xs =>
+    whenSuccess(res): (_, xs) =>
       expect.eql(Nil, xs)

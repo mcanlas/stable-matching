@@ -12,7 +12,7 @@ object MonopartiteMatcher:
       members: Set[A],
       preferences: Map[A, NonEmptyList[A]],
       order: Order[A]
-  ): Either[Error, List[String]] =
+  ): WriterT[[X] =>> Either[Error, X], Chain[String], List[String]] =
     def validatePopulationSize(population: Set[A]) =
       Either.cond(
         population.size % 2 == 0,
@@ -38,17 +38,21 @@ object MonopartiteMatcher:
               )
 
     for
-      pop <- validatePopulationSize(members)
+      pop <- WriterT.liftF(validatePopulationSize(members))
 
-      _ <- pop
-        .toList
-        .traverse(validatePreferenceExists(preferences))
-        .as(preferences)
-        .toEither
-        .leftMap(Error.MissingPreferenceList(_))
+      _ <- WriterT
+        .liftF:
+          pop
+            .toList
+            .traverse(validatePreferenceExists(preferences))
+            .as(preferences)
+            .toEither
+            .leftMap(Error.MissingPreferenceList(_))
 
-      _ <- validateMemberIsInPreferences
-    yield Nil
+      _ <- WriterT.liftF(validateMemberIsInPreferences)
+
+      res <- WriterT.put(Nil)(Chain("nil"))
+    yield res
 
   // TODO apply algorithm is a list/recursive
 
