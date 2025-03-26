@@ -12,6 +12,7 @@ object OrderedStableMatching:
     * @tparam A
     *   The roommate type
     */
+  // TODO add method to have matches as ordered output
   case class Total[A: Eq](population: List[A], mapping: Map[A, A]):
     private val uniquePopulation =
       population.toSet
@@ -27,19 +28,21 @@ object OrderedStableMatching:
     * @tparam A
     *   The roommate type
     */
-  case class Partial[A: Eq](population: List[A], mapping: Map[A, A]):
-    def withMatching(x: A, y: A): Either[String, Partial[A]] =
-      Either
-        .cond(
-          x =!= y,
-          copy(
-            mapping = mapping
-              .updated(x, y)
-              .updated(y, x)
-          ),
-          "x cannot equal y in a matching",
-        )
+  case class Partial[A: Eq](mapping: Map[A, A]):
+    /**
+      * Adds a matching between two members of the population
+      *
+      * Asserts that the two members are not equal
+      */
+    def withMatching(x: A, y: A): Partial[A] =
+      assert(x =!= y)
+
+      copy(
+        mapping = mapping
+          .updated(x, y)
+          .updated(y, x)
+      )
 
   object Partial:
-    def empty[A: Eq](population: List[A]): Partial[A] =
-      Partial(population, Map.empty)
+    def empty[A: Eq]: Partial[A] =
+      Partial(Map.empty)

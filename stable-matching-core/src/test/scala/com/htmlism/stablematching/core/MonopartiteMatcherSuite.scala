@@ -63,17 +63,25 @@ object MonopartiteMatcherSuite extends FunSuite:
         .createMatches(population, Map.empty[String, NonEmptyList[String]])
         .run
 
-    whenSuccess(res): (_, xs) =>
-      expect.eql(Nil, xs)
+    whenSuccess(res): (_, matching) =>
+      expect(matching.mapping.isEmpty)
 
-  test("A trivial population of two has a trivial answer".ignore):
+  test("A trivial population of two has a trivial answer"):
     val population =
-      ListSet.empty[String]
+      ListSet("a", "b")
+
+    val preferences =
+      Map(
+        "a" -> NonEmptyList.one("b"),
+        "b" -> NonEmptyList.one("a")
+      )
 
     val res =
       MonopartiteMatcher
-        .createMatches(population, Map.empty[String, NonEmptyList[String]])
+        .createMatches(population, preferences)
         .run
 
-    whenSuccess(res): (_, xs) =>
-      expect.eql(Nil, xs)
+    whenSuccess(res): (_, matching) =>
+//      log.toList.foreach(println)
+
+      expect(matching.mapping.size == 2)

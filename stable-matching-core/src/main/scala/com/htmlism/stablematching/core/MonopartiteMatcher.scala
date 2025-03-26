@@ -6,10 +6,15 @@ import cats.*
 import cats.data.*
 import cats.syntax.all.*
 
+import com.htmlism.stablematching.data.*
+
 /**
   * Also referred to as the "stable roommates problem" https://en.wikipedia.org/wiki/Stable_roommates_problem
   */
 object MonopartiteMatcher:
+  type Result[A] =
+    Either[Error, A]
+
   /**
     * @param members
     *   An ordered, unique list of members. Ordering affects the results of the matching
@@ -17,7 +22,7 @@ object MonopartiteMatcher:
   def createMatches[A: Eq](
       members: ListSet[A],
       preferences: Map[A, NonEmptyList[A]]
-  ): WriterT[[X] =>> Either[Error, X], Chain[String], List[String]] =
+  ): WriterT[Result, Chain[String], OrderedStableMatching.Total[A]] =
     def validatePopulationSize(population: Set[A]) =
       Either.cond(
         population.size % 2 == 0,
@@ -56,10 +61,46 @@ object MonopartiteMatcher:
 
       _ <- WriterT.liftF(validateMemberIsInPreferences)
 
-      res <- WriterT.put(Nil)(Chain("nil"))
-    yield res
+      noMatches = State[A](
+        members     = members,
+        preferences = preferences,
+        matching    = OrderedStableMatching.Partial.empty
+      )
 
-  // TODO apply algorithm is a list/recursive
+      matchesComplete = Id(noMatches)
+        .tailRecM(acc => Functor[Id].map(acc)(_.applyOne.swap))
+    yield matchesComplete
+
+  case class State[A: Eq](
+      members: ListSet[A],
+      preferences: Map[A, NonEmptyList[A]],
+      matching: OrderedStableMatching.Partial[A]
+  ):
+    /**
+      * Assign a matching to the next proposer that isn't already matched
+      *
+      * @return
+      *   Right if a match was applied, left if no match was applied
+      */
+    def applyOne: Either[OrderedStableMatching.Total[A], State[A]] =
+      val nextProposer =
+        members
+          .iterator
+          .find(!matching.mapping.contains(_))
+
+      nextProposer match
+        case Some(p) =>
+          Right:
+            copy(
+              matching    = matching.withMatching(p, preferences(p).head),
+              preferences = preferences.updated(p, preferences(p))
+            )
+        case None =>
+          Left:
+            OrderedStableMatching.Total(
+              population = members.toList,
+              mapping    = matching.mapping
+            )
 
   enum Error:
     case UnsupportedPopulationSize(n: Int)

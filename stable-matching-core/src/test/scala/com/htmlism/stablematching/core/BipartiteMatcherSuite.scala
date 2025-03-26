@@ -134,8 +134,8 @@ object BipartiteMatcherSuite extends FunSuite:
         )
         .run
 
-    whenSuccess(res): (_, matches) =>
-      expect.eql(Nil, matches)
+    whenSuccess(res): (_, matching) =>
+      expect(matching.ab.isEmpty)
 
   test("A trivial population of one pair has a trivial answer".ignore):
     val proposers =
@@ -154,5 +154,5 @@ object BipartiteMatcherSuite extends FunSuite:
         )
         .run
 
-    whenSuccess(res): (_, matches) =>
-      expect.eql(Nil, matches)
+    whenSuccess(res): (_, matching) =>
+      expect(matching.ab.isEmpty)

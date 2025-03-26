@@ -6,7 +6,13 @@ import cats.*
 import cats.data.*
 import cats.syntax.all.*
 
+import com.htmlism.stablematching
+import com.htmlism.stablematching.data.*
+
 object BipartiteMatcher:
+  type Result[A] =
+    Either[Error, A]
+
   /**
     * @param proposers
     *   An ordered, unique list of proposers. Ordering affects the results of the matching
@@ -18,7 +24,7 @@ object BipartiteMatcher:
       acceptors: ListSet[B],
       proposerPreferences: Map[A, NonEmptyList[B]],
       acceptorPreferences: Map[B, NonEmptyList[A]]
-  ): WriterT[[X] =>> Either[Error, X], Chain[String], List[String]] =
+  ): WriterT[Result, Chain[String], OrderedBiMap.Total[A, B]] =
     def validatePopulationSizes(xs: Set[A], ys: Set[B]) =
       Either.cond(
         xs.size == ys.size,
@@ -77,8 +83,44 @@ object BipartiteMatcher:
 
       _ <- WriterT.liftF(validateAcceptorsAreInPreferences)
 
-      res <- WriterT.put(Nil)(Chain("nil"))
+      state = State[A, B](
+        proposers           = proposers,
+        acceptors           = acceptors,
+        proposerPreferences = proposerPreferences,
+        acceptorPreferences = acceptorPreferences,
+        matching            = OrderedBiMap.Partial.empty
+      )
+
+      _ <- WriterT.tell(Chain(state.toString))
+
+      res <- WriterT.put(
+        OrderedBiMap.Total(
+          populationA = proposers.toList,
+          populationB = acceptors.toList,
+          ab          = Map.empty,
+          ba          = Map.empty
+        )
+      )(Chain("nil"))
     yield res
+
+  case class State[A, B](
+      proposers: ListSet[A],
+      acceptors: ListSet[B],
+      proposerPreferences: Map[A, NonEmptyList[B]],
+      acceptorPreferences: Map[B, NonEmptyList[A]],
+      matching: OrderedBiMap.Partial[A, B]
+  ):
+    /**
+      * Assign a matching to the next proposer that isn't already matched
+      *
+      * @return
+      *   Right if a match was applied, left if no match was applied
+      */
+    def applyOne: Either[OrderedBiMap.Total[A, B], State[A, B]] =
+      if true then
+        Right:
+          copy()
+      else Left(???)
 
   enum Error:
     case MismatchedPopulationSizes(proposers: Int, acceptors: Int)

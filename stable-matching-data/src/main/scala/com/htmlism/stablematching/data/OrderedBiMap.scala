@@ -13,6 +13,7 @@ object OrderedBiMap:
     * @tparam B
     *   Acceptor type
     */
+  // TODO add method to have matches as ordered output
   case class Total[A: Eq, B: Eq](populationA: List[A], populationB: List[B], ab: Map[A, B], ba: Map[B, A]):
     assert(populationA.size == populationB.size)
 
