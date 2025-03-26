@@ -12,7 +12,7 @@ object BipartiteMatcher:
       acceptorPreferences: Map[B, NonEmptyList[A]],
       proposerOrder: Order[A],
       acceptorOrder: Order[B]
-  ): Either[Error, List[String]] =
+  ): WriterT[[X] =>> Either[Error, X], Chain[String], List[String]] =
     def validatePopulationSizes(xs: Set[A], ys: Set[B]) =
       Either.cond(
         xs.size == ys.size,
@@ -45,28 +45,34 @@ object BipartiteMatcher:
         .void
 
     for
-      _ <- validatePopulationSizes(proposers, acceptors)
+      _ <- WriterT.liftF(validatePopulationSizes(proposers, acceptors))
 
-      _ <- proposers
-        .toList
-        .traverse: p =>
-          if proposerPreferences.contains(p) then ().validNec
-          else p.toString.invalidNec
-        .toEither
-        .leftMap(Error.MissingProposerPreferenceList(_))
+      _ <- WriterT
+        .liftF:
+          proposers
+            .toList
+            .traverse: p =>
+              if proposerPreferences.contains(p) then ().validNec
+              else p.toString.invalidNec
+            .toEither
+            .leftMap(Error.MissingProposerPreferenceList(_))
 
-      _ <- acceptors
-        .toList
-        .traverse: p =>
-          if acceptorPreferences.contains(p) then ().validNec
-          else p.toString.invalidNec
-        .toEither
-        .leftMap(Error.MissingAcceptorPreferenceList(_))
+      _ <- WriterT
+        .liftF:
+          acceptors
+            .toList
+            .traverse: p =>
+              if acceptorPreferences.contains(p) then ().validNec
+              else p.toString.invalidNec
+            .toEither
+            .leftMap(Error.MissingAcceptorPreferenceList(_))
 
-      _ <- validateProposersAreInPreferences
+      _ <- WriterT.liftF(validateProposersAreInPreferences)
 
-      _ <- validateAcceptorsAreInPreferences
-    yield Nil
+      _ <- WriterT.liftF(validateAcceptorsAreInPreferences)
+
+      res <- WriterT.put(Nil)(Chain.one("nil"))
+    yield res
 
   enum Error:
     case MismatchedPopulationSizes(proposers: Int, acceptors: Int)

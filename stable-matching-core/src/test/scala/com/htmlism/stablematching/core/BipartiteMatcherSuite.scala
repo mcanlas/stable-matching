@@ -22,6 +22,7 @@ object BipartiteMatcherSuite extends FunSuite:
           Order[String],
           Order[Int]
         )
+        .run
 
     matches(res):
       case Left(BipartiteMatcher.Error.MismatchedPopulationSizes(x, y)) =>
@@ -45,6 +46,7 @@ object BipartiteMatcherSuite extends FunSuite:
           Order[String],
           Order[Int]
         )
+        .run
 
     matches(res):
       case Left(BipartiteMatcher.Error.MissingProposerPreferenceList(xs)) =>
@@ -68,6 +70,7 @@ object BipartiteMatcherSuite extends FunSuite:
           Order[String],
           Order[Int]
         )
+        .run
 
     matches(res):
       case Left(BipartiteMatcher.Error.MissingAcceptorPreferenceList(xs)) =>
@@ -91,6 +94,7 @@ object BipartiteMatcherSuite extends FunSuite:
           Order[String],
           Order[Int]
         )
+        .run
 
     matches(res):
       case Left(BipartiteMatcher.Error.IncompleteAcceptorsPreferenceList(p, k)) =>
@@ -114,6 +118,7 @@ object BipartiteMatcherSuite extends FunSuite:
           Order[String],
           Order[Int]
         )
+        .run
 
     matches(res):
       case Left(BipartiteMatcher.Error.IncompleteProposersPreferenceList(p, k)) =>
@@ -137,9 +142,10 @@ object BipartiteMatcherSuite extends FunSuite:
           Order[String],
           Order[Int]
         )
+        .run
 
-    whenSuccess(res): xs =>
-      expect.eql(Nil, xs)
+    whenSuccess(res): (_, matches) =>
+      expect.eql(Nil, matches)
 
   test("A trivial population of one pair has a trivial answer".ignore):
     val proposers =
@@ -158,6 +164,7 @@ object BipartiteMatcherSuite extends FunSuite:
           Order[String],
           Order[Int]
         )
+        .run
 
-    whenSuccess(res): xs =>
-      expect.eql(Nil, xs)
+    whenSuccess(res): (_, matches) =>
+      expect.eql(Nil, matches)
