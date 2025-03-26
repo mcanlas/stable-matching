@@ -13,7 +13,11 @@ object OrderedStableMatching:
     *   The roommate type
     */
   case class Total[A: Eq](population: List[A], mapping: Map[A, A]):
-    assert(population.size == mapping.size)
+    private val uniquePopulation =
+      population.toSet
+
+    assert(uniquePopulation == mapping.keySet)
+    assert(uniquePopulation == mapping.values.toSet)
 
   /**
     * Used when the population matches to itself, as in the stable roommates problem
