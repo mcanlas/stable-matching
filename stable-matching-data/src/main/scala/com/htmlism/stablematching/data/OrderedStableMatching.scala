@@ -1,6 +1,8 @@
 package com.htmlism.stablematching.data
 
-import cats.Eq
+import scala.collection.immutable.ListSet
+
+import cats.*
 import cats.syntax.all.*
 
 object OrderedStableMatching:
@@ -13,12 +15,9 @@ object OrderedStableMatching:
     *   The roommate type
     */
   // TODO add method to have matches as ordered output
-  case class Total[A: Eq](population: List[A], mapping: Map[A, A]):
-    private val uniquePopulation =
-      population.toSet
-
-    assert(uniquePopulation == mapping.keySet)
-    assert(uniquePopulation == mapping.values.toSet)
+  case class Total[A: Eq](population: ListSet[A], mapping: Map[A, A]):
+    assert(population.toSet === mapping.keySet, "mapping keys must be total")
+    assert(population.toSet === mapping.values.toSet, "mapping values must be total")
 
   /**
     * Used when the population matches to itself, as in the stable roommates problem

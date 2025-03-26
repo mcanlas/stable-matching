@@ -18,6 +18,8 @@ object BipartiteMatcher:
     *   An ordered, unique list of proposers. Ordering affects the results of the matching
     * @param acceptors
     *   An ordered, unique list of acceptors. Ordering affects the results of the matching
+    * @return
+    *   One stable matching, potentially of many others
     */
   def createMatches[A: Eq, B: Eq](
       proposers: ListSet[A],
@@ -95,8 +97,8 @@ object BipartiteMatcher:
 
       res <- WriterT.put(
         OrderedBiMap.Total(
-          populationA = proposers.toList,
-          populationB = acceptors.toList,
+          populationA = proposers,
+          populationB = acceptors,
           ab          = Map.empty,
           ba          = Map.empty
         )

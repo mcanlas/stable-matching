@@ -26,7 +26,7 @@ object MonopartiteMatcherSuite extends FunSuite:
 
     val res =
       MonopartiteMatcher
-        .createMatches(population, Map("a" -> NonEmptyList.one("b")))
+        .createMatches(population, Map("a" -> NonEmptyList.of("b")))
         .run
 
     matches(res):
@@ -43,8 +43,8 @@ object MonopartiteMatcherSuite extends FunSuite:
         .createMatches(
           population,
           Map(
-            "a" -> NonEmptyList.one("b"),
-            "b" -> NonEmptyList.one("c")
+            "a" -> NonEmptyList.of("b"),
+            "b" -> NonEmptyList.of("c")
           )
         )
         .run
@@ -72,8 +72,8 @@ object MonopartiteMatcherSuite extends FunSuite:
 
     val preferences =
       Map(
-        "a" -> NonEmptyList.one("b"),
-        "b" -> NonEmptyList.one("a")
+        "a" -> NonEmptyList.of("b"),
+        "b" -> NonEmptyList.of("a")
       )
 
     val res =
@@ -82,6 +82,24 @@ object MonopartiteMatcherSuite extends FunSuite:
         .run
 
     whenSuccess(res): (_, matching) =>
-//      log.toList.foreach(println)
-
       expect(matching.mapping.size == 2)
+
+  test("A population of four is stable".ignore):
+    val population =
+      ListSet("a", "b", "c", "d")
+
+    val preferences =
+      Map(
+        "a" -> NonEmptyList.of("b", "c", "d"),
+        "b" -> NonEmptyList.of("a", "c", "d"),
+        "c" -> NonEmptyList.of("a", "b", "d"),
+        "d" -> NonEmptyList.of("a", "b", "c"),
+      )
+
+    val res =
+      MonopartiteMatcher
+        .createMatches(population, preferences)
+        .run
+
+    whenSuccess(res): (_, matching) =>
+      expect(matching.mapping.size == 4)

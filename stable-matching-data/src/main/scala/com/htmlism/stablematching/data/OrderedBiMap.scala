@@ -1,6 +1,9 @@
 package com.htmlism.stablematching.data
 
-import cats.Eq
+import scala.collection.immutable.ListSet
+
+import cats.*
+import cats.syntax.all.*
 
 object OrderedBiMap:
   /**
@@ -14,23 +17,18 @@ object OrderedBiMap:
     *   Acceptor type
     */
   // TODO add method to have matches as ordered output
-  case class Total[A: Eq, B: Eq](populationA: List[A], populationB: List[B], ab: Map[A, B], ba: Map[B, A]):
-    assert(populationA.size == populationB.size)
+  case class Total[A: Eq, B: Eq](populationA: ListSet[A], populationB: ListSet[B], ab: Map[A, B], ba: Map[B, A]):
+    assert(populationA.size === populationB.size, "proposers and acceptors must be the same size")
+    assert(ab.size === ba.size, "mapping must be bijective")
 
-    private val uniquePopulationA =
-      populationA.toSet
+    assert(populationA.toSet === ab.keySet, "proposer mapping must be total")
+    assert(populationA.toSet === ba.values.toSet, "acceptor values must be total")
 
-    private val uniquePopulationB =
-      populationB.toSet
-
-    assert(uniquePopulationA == ab.keySet)
-    assert(uniquePopulationA == ba.values.toSet)
-
-    assert(uniquePopulationB == ab.keySet)
-    assert(uniquePopulationB == ab.values.toSet)
+    assert(populationB.toSet === ba.keySet, "acceptor mapping must be total")
+    assert(populationB.toSet === ab.values.toSet, "proposer values must be total")
 
   object Total:
-    def empty[A: Eq, B: Eq](populationA: List[A], populationB: List[B]): Total[A, B] =
+    def empty[A: Eq, B: Eq](populationA: ListSet[A], populationB: ListSet[B]): Total[A, B] =
       Total(populationA, populationB, Map.empty, Map.empty)
 
   /**

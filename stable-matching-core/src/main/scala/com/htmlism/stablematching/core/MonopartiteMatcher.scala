@@ -16,6 +16,9 @@ object MonopartiteMatcher:
     Either[Error, A]
 
   /**
+    * Attempts to find a stable matching for a population of members. In the monopartite or "roommates" formulation, a
+    * stable matching is not guaranteed to exist.
+    *
     * @param members
     *   An ordered, unique list of members. Ordering affects the results of the matching
     */
@@ -98,11 +101,20 @@ object MonopartiteMatcher:
         case None =>
           Left:
             OrderedStableMatching.Total(
-              population = members.toList,
+              population = members,
               mapping    = matching.mapping
             )
 
   enum Error:
     case UnsupportedPopulationSize(n: Int)
     case MissingPreferenceList(xs: NonEmptyChain[String])
+
+    /**
+      * Member $member is not reflected in preference list of member $preferenceKey
+      */
     case IncompletePreferenceList(member: String, preferenceKey: String)
+
+    /**
+      * Unlike the bipartite problem, a stable matching is not guaranteed to exist
+      */
+    case StableMatchingNotPossible
