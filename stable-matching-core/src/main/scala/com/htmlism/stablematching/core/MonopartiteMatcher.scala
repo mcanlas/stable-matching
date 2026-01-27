@@ -22,7 +22,7 @@ object MonopartiteMatcher:
     * @param members
     *   An ordered, unique list of members. Ordering affects the results of the matching
     */
-  def createMatches[A: Eq](
+  def createMatches[A: Order](
       members: ListSet[A],
       preferences: Map[A, NonEmptyList[A]]
   ): WriterT[Result, Chain[String], OrderedStableMatching.Total[A]] =
@@ -86,6 +86,7 @@ object MonopartiteMatcher:
       *   Right if a match was applied, left if no match was applied
       */
     def applyOne: Either[OrderedStableMatching.Total[A], State[A]] =
+      // TODO this should be ordered
       val nextProposer =
         members
           .iterator

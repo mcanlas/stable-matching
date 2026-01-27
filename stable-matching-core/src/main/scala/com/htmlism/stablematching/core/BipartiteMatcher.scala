@@ -21,7 +21,7 @@ object BipartiteMatcher:
     * @return
     *   One stable matching, potentially of many others
     */
-  def createMatches[A: Eq, B: Eq](
+  def createMatches[A: Order, B: Order](
       proposers: ListSet[A],
       acceptors: ListSet[B],
       proposerPreferences: Map[A, NonEmptyList[B]],
