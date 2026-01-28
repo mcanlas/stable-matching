@@ -7,12 +7,12 @@ import cats.*
 import cats.data.*
 import cats.syntax.all.*
 
-final case class MonopartiteMatchingTable[A](
+final case class MonopartiteStatefulTable[A](
     members: ListSet[A],
     preferences: Map[A, NonEmptyList[A]],
-    cells: Map[(A, A), MonopartiteMatchingTable.State]
+    cells: Map[(A, A), MonopartiteStatefulTable.State]
 ):
-  private def acceptorsAndStatesFor(proposer: A): NonEmptyList[(A, MonopartiteMatchingTable.State)] =
+  private def acceptorsAndStatesFor(proposer: A): NonEmptyList[(A, MonopartiteStatefulTable.State)] =
     preferences(proposer)
       .fproduct(a => cells((proposer, a)))
 
@@ -29,14 +29,14 @@ final case class MonopartiteMatchingTable[A](
           val hasFirstDate =
             acceptorsAndStates
               .exists: (_, state) =>
-                state == MonopartiteMatchingTable.State.ProposesTo
+                state == MonopartiteStatefulTable.State.ProposesTo
 
           if hasFirstDate then None
           else
             val maybeAcceptor =
               acceptorsAndStates
                 .find: (_, state) =>
-                  state == MonopartiteMatchingTable.State.Free
+                  state == MonopartiteStatefulTable.State.Free
                 .map(_._1)
 
             maybeAcceptor
@@ -48,40 +48,40 @@ final case class MonopartiteMatchingTable[A](
   /**
     * Applies a symmetric proposal between two members
     */
-  def applySymmetricProposal(proposer: A, acceptor: A): MonopartiteMatchingTable[A] =
+  def applySymmetricProposal(proposer: A, acceptor: A): MonopartiteStatefulTable[A] =
     val updatedCells =
       cells
-        .updated((proposer, acceptor), MonopartiteMatchingTable.State.ProposesTo)
-        .updated((acceptor, proposer), MonopartiteMatchingTable.State.ProposedBy)
+        .updated((proposer, acceptor), MonopartiteStatefulTable.State.ProposesTo)
+        .updated((acceptor, proposer), MonopartiteStatefulTable.State.ProposedBy)
 
     val newTableWithDuplicateProposals =
       this.copy(cells = updatedCells)
 
-    MonopartiteMatchingTable
+    MonopartiteStatefulTable
       .trimDuplicateProposalsRecursively(newTableWithDuplicateProposals)
 
   /**
     * Applies a symmetric rejection between two members
     */
-  def applySymmetricRejection(proposer: A, acceptor: A): MonopartiteMatchingTable[A] =
+  def applySymmetricRejection(proposer: A, acceptor: A): MonopartiteStatefulTable[A] =
     val updatedCells =
       cells
-        .updated((proposer, acceptor), MonopartiteMatchingTable.State.Rejects)
-        .updated((acceptor, proposer), MonopartiteMatchingTable.State.RejectedBy)
+        .updated((proposer, acceptor), MonopartiteStatefulTable.State.Rejects)
+        .updated((acceptor, proposer), MonopartiteStatefulTable.State.RejectedBy)
 
     this.copy(cells = updatedCells)
 
   /**
     * Gets the state between a proposer and an acceptor
     */
-  def getState(proposer: A, acceptor: A): MonopartiteMatchingTable.State =
+  def getState(proposer: A, acceptor: A): MonopartiteStatefulTable.State =
     cells((proposer, acceptor))
 
-object MonopartiteMatchingTable:
+object MonopartiteStatefulTable:
   def build[A: Order](
       members: ListSet[A],
       preferences: Map[A, NonEmptyList[A]]
-  ): Either[ValidationError, MonopartiteMatchingTable[A]] =
+  ): Either[ValidationError, MonopartiteStatefulTable[A]] =
     def validatePopulationSize =
       Either.cond(
         members.size % 2 == 0,
@@ -124,14 +124,14 @@ object MonopartiteMatchingTable:
           .leftMap(ValidationError.MissingPreferenceList(_))
 
       _ <- validateMemberIsInPreferences
-    yield MonopartiteMatchingTable(
+    yield MonopartiteStatefulTable(
       members,
       preferences,
       genKeySide.map(k => k -> State.Free).toMap
     )
 
   @tailrec
-  def trimDuplicateProposalsRecursively[A](table: MonopartiteMatchingTable[A]): MonopartiteMatchingTable[A] =
+  def trimDuplicateProposalsRecursively[A](table: MonopartiteStatefulTable[A]): MonopartiteStatefulTable[A] =
     val rejectionPairMaybe =
       table
         .members
@@ -141,7 +141,7 @@ object MonopartiteMatchingTable:
               table
                 .acceptorsAndStatesFor(proposer)
                 .collect:
-                  case (acceptor, MonopartiteMatchingTable.State.ProposedBy) =>
+                  case (acceptor, MonopartiteStatefulTable.State.ProposedBy) =>
                     acceptor
 
             proposals match
@@ -166,7 +166,7 @@ object MonopartiteMatchingTable:
         table
 
   @tailrec
-  def trimLessDesirableMatchesRecursively[A](table: MonopartiteMatchingTable[A]): MonopartiteMatchingTable[A] =
+  def trimLessDesirableMatchesRecursively[A](table: MonopartiteStatefulTable[A]): MonopartiteStatefulTable[A] =
     val rejectionPairMaybe =
       table
         .members
@@ -182,13 +182,13 @@ object MonopartiteMatchingTable:
                   .foldLeft(Option.empty[A]):
                     case (acc, (acceptor, state)) =>
                       state match
-                        case MonopartiteMatchingTable.State.ProposesTo =>
+                        case MonopartiteStatefulTable.State.ProposesTo =>
                           None
 
-                        case MonopartiteMatchingTable.State.ProposedBy =>
+                        case MonopartiteStatefulTable.State.ProposedBy =>
                           None
 
-                        case MonopartiteMatchingTable.State.Free =>
+                        case MonopartiteStatefulTable.State.Free =>
                           acc match
                             case currentRejection @ Some(_) =>
                               currentRejection
@@ -196,10 +196,10 @@ object MonopartiteMatchingTable:
                             case None =>
                               acceptor.some
 
-                        case MonopartiteMatchingTable.State.Rejects =>
+                        case MonopartiteStatefulTable.State.Rejects =>
                           acc
 
-                        case MonopartiteMatchingTable.State.RejectedBy =>
+                        case MonopartiteStatefulTable.State.RejectedBy =>
                           acc
 
               potentialRejected

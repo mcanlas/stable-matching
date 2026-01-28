@@ -5,8 +5,8 @@ import scala.util.chaining.*
 import cats.Show
 import cats.syntax.all.*
 
-object MonopartiteMatchingTablePrinter:
-  def generateMarkdown[A: Show](table: MonopartiteMatchingTable[A]): String =
+object MonopartiteStatefulTablePrinter:
+  def generateMarkdown[A: Show](table: MonopartiteStatefulTable[A]): String =
     val length =
       table.members.size
 
@@ -51,15 +51,15 @@ object MonopartiteMatchingTablePrinter:
   private def surround(left: String, right: String)(s: String): String =
     s"$left$s$right"
 
-  private def stateToString[A: Show](state: MonopartiteMatchingTable.State): String =
+  private def stateToString[A: Show](state: MonopartiteStatefulTable.State): String =
     state match
-      case MonopartiteMatchingTable.State.Free =>
+      case MonopartiteStatefulTable.State.Free =>
         ""
-      case MonopartiteMatchingTable.State.ProposesTo =>
+      case MonopartiteStatefulTable.State.ProposesTo =>
         "😸"
-      case MonopartiteMatchingTable.State.ProposedBy =>
+      case MonopartiteStatefulTable.State.ProposedBy =>
         "🤔"
-      case MonopartiteMatchingTable.State.Rejects =>
+      case MonopartiteStatefulTable.State.Rejects =>
         "❌"
-      case MonopartiteMatchingTable.State.RejectedBy =>
+      case MonopartiteStatefulTable.State.RejectedBy =>
         "👻"

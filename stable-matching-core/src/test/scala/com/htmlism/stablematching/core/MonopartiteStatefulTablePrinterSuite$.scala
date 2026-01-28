@@ -5,7 +5,7 @@ import scala.collection.immutable.ListSet
 import cats.data.NonEmptyList
 import weaver.*
 
-object MonopartiteMatchingTablePrinterSuite extends FunSuite:
+object MonopartiteStatefulTablePrinterSuite$ extends FunSuite:
   private def buildFixture =
     // https://www.youtube.com/watch?v=5QLxAp8mRKo
 
@@ -22,7 +22,7 @@ object MonopartiteMatchingTablePrinterSuite extends FunSuite:
         "f" -> NonEmptyList.of("a", "b", "d", "c", "e")
       )
 
-    MonopartiteMatchingTable
+    MonopartiteStatefulTable
       .build(
         population,
         preferences
@@ -32,7 +32,7 @@ object MonopartiteMatchingTablePrinterSuite extends FunSuite:
     matches(buildFixture):
       case Right(table) =>
         println:
-          MonopartiteMatchingTablePrinter
+          MonopartiteStatefulTablePrinter
             .generateMarkdown(table)
 
         expect(true)

@@ -6,17 +6,17 @@ import cats.*
 import cats.data.*
 import weaver.*
 
-object MonopartiteMatchingTableSuite extends FunSuite:
+object MonopartiteStatefulTableSuite$ extends FunSuite:
   test("Matcher requires an even population"):
     val oddPopulation =
       ListSet("a")
 
     val res =
-      MonopartiteMatchingTable
+      MonopartiteStatefulTable
         .build(oddPopulation, Map.empty[String, NonEmptyList[String]])
 
     matches(res):
-      case Left(MonopartiteMatchingTable.ValidationError.UnsupportedPopulationSize(n)) =>
+      case Left(MonopartiteStatefulTable.ValidationError.UnsupportedPopulationSize(n)) =>
         expect.eql(oddPopulation.size, n)
 
   test("Matcher requires a preference list for every member"):
@@ -24,11 +24,11 @@ object MonopartiteMatchingTableSuite extends FunSuite:
       ListSet("a", "b", "c", "d")
 
     val res =
-      MonopartiteMatchingTable
+      MonopartiteStatefulTable
         .build(population, Map("a" -> NonEmptyList.of("b")))
 
     matches(res):
-      case Left(MonopartiteMatchingTable.ValidationError.MissingPreferenceList(xs)) =>
+      case Left(MonopartiteStatefulTable.ValidationError.MissingPreferenceList(xs)) =>
         // error list is non-deterministic from input set
         expect.eql(Set("b", "c", "d"), xs.iterator.toSet)
 
@@ -37,7 +37,7 @@ object MonopartiteMatchingTableSuite extends FunSuite:
       ListSet("a", "b")
 
     val res =
-      MonopartiteMatchingTable
+      MonopartiteStatefulTable
         .build(
           population,
           Map(
@@ -47,7 +47,7 @@ object MonopartiteMatchingTableSuite extends FunSuite:
         )
 
     matches(res):
-      case Left(MonopartiteMatchingTable.ValidationError.IncompletePreferenceList(p, k)) =>
+      case Left(MonopartiteStatefulTable.ValidationError.IncompletePreferenceList(p, k)) =>
         expect.eql("a", p) and
           expect.eql("b", k)
 
@@ -67,7 +67,7 @@ object MonopartiteMatchingTableSuite extends FunSuite:
         "f" -> NonEmptyList.of("a", "b", "d", "c", "e")
       )
 
-    MonopartiteMatchingTable
+    MonopartiteStatefulTable
       .build(
         population,
         preferences
@@ -99,8 +99,8 @@ object MonopartiteMatchingTableSuite extends FunSuite:
               table
                 .applySymmetricProposal(proposer, acceptor)
 
-            expect.eql(MonopartiteMatchingTable.State.ProposesTo, newTable.getState(proposer, acceptor)) and
-              expect.eql(MonopartiteMatchingTable.State.ProposedBy, newTable.getState(acceptor, proposer))
+            expect.eql(MonopartiteStatefulTable.State.ProposesTo, newTable.getState(proposer, acceptor)) and
+              expect.eql(MonopartiteStatefulTable.State.ProposedBy, newTable.getState(acceptor, proposer))
 
   test("Can do multiple iterations"):
     // https://www.youtube.com/watch?v=5QLxAp8mRKo
@@ -134,7 +134,7 @@ object MonopartiteMatchingTableSuite extends FunSuite:
                   val newTable =
                     tbl.applySymmetricProposal(foundProposer, foundAcceptor)
 
-                  println(MonopartiteMatchingTablePrinter.generateMarkdown(newTable))
+                  println(MonopartiteStatefulTablePrinter.generateMarkdown(newTable))
 
                   newTable -> newRet
 
@@ -156,17 +156,17 @@ object MonopartiteMatchingTableSuite extends FunSuite:
                   acc
 
         println:
-          MonopartiteMatchingTablePrinter
+          MonopartiteStatefulTablePrinter
             .generateMarkdown(tableAfterIterations)
 
         val tableAfterRejections =
-          MonopartiteMatchingTable
+          MonopartiteStatefulTable
             .trimLessDesirableMatchesRecursively(tableAfterIterations)
 
         println:
-          MonopartiteMatchingTablePrinter
+          MonopartiteStatefulTablePrinter
             .generateMarkdown(tableAfterRejections)
 
-        expect.eql(MonopartiteMatchingTable.State.Rejects, tableAfterRejections.getState("a", "c")) and
-          expect.eql(MonopartiteMatchingTable.State.Rejects, tableAfterRejections.getState("a", "e")) and
-          expect.eql(MonopartiteMatchingTable.State.RejectedBy, tableAfterRejections.getState("a", "d"))
+        expect.eql(MonopartiteStatefulTable.State.Rejects, tableAfterRejections.getState("a", "c")) and
+          expect.eql(MonopartiteStatefulTable.State.Rejects, tableAfterRejections.getState("a", "e")) and
+          expect.eql(MonopartiteStatefulTable.State.RejectedBy, tableAfterRejections.getState("a", "d"))
