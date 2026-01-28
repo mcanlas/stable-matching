@@ -77,8 +77,6 @@ final case class MonopartiteMatchingTable[A: Order](
   def getState(proposer: A, acceptor: A): MonopartiteMatchingTable.State =
     cells((proposer, acceptor))
 
-// TODO next: method for find first unproposed
-// TODO next: functional white loops
 object MonopartiteMatchingTable:
   def build[A: Order](
       members: ListSet[A],
