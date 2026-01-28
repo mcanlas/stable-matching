@@ -128,6 +128,8 @@ object MonopartiteMatchingTableSuite extends FunSuite:
                   val newTable =
                     tbl.applySymmetricProposal(foundProposer, foundAcceptor)
 
+                  println(MonopartiteMatchingTablePrinter.generateMarkdown(newTable))
+
                   newTable -> newRet
 
                 case None =>
