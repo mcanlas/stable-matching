@@ -7,7 +7,7 @@ import cats.*
 import cats.data.*
 import cats.syntax.all.*
 
-final case class MonopartiteMatchingTable[A: Order](
+final case class MonopartiteMatchingTable[A](
     members: ListSet[A],
     preferences: Map[A, NonEmptyList[A]],
     cells: Map[(A, A), MonopartiteMatchingTable.State]
