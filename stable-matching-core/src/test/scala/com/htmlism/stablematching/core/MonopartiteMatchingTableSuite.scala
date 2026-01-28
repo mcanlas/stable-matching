@@ -103,10 +103,16 @@ object MonopartiteMatchingTableSuite extends FunSuite:
               expect.eql(MonopartiteMatchingTable.State.ProposedBy, newTable.getState(acceptor, proposer))
 
   test("Can do multiple iterations"):
+    // https://www.youtube.com/watch?v=5QLxAp8mRKo
     val journey = List(
       ("a", "b"),
       ("b", "d"),
       ("c", "d"),
+      ("b", "e"), // this is after duplicate proposals are trimmed
+      ("d", "f"),
+      ("e", "f"), // e also proposes to f but immediately gets trimmed after
+      ("e", "c"),
+      ("f", "a")
     )
 
     matches(buildFixture):

@@ -1,16 +1,21 @@
 package com.htmlism.stablematching.core
 
+import scala.annotation.tailrec
 import scala.collection.immutable.ListSet
 
 import cats.*
 import cats.data.*
 import cats.syntax.all.*
 
-case class MonopartiteMatchingTable[A: Order](
+final case class MonopartiteMatchingTable[A: Order](
     members: ListSet[A],
     preferences: Map[A, NonEmptyList[A]],
     cells: Map[(A, A), MonopartiteMatchingTable.State]
 ):
+  private def acceptorsAndStatesFor(proposer: A): NonEmptyList[(A, MonopartiteMatchingTable.State)] =
+    preferences(proposer)
+      .fproduct(a => cells((proposer, a)))
+
   /**
     * Finds the first member able to propose to another free member
     */
@@ -19,8 +24,7 @@ case class MonopartiteMatchingTable[A: Order](
       .foldLeft(Option.empty[(A, A)]):
         case (None, proposer) =>
           val acceptorsAndStates =
-            preferences(proposer)
-              .fproduct(a => cells((proposer, a)))
+            acceptorsAndStatesFor(proposer)
 
           val hasFirstDate =
             acceptorsAndStates
@@ -49,6 +53,21 @@ case class MonopartiteMatchingTable[A: Order](
       cells
         .updated((proposer, acceptor), MonopartiteMatchingTable.State.ProposesTo)
         .updated((acceptor, proposer), MonopartiteMatchingTable.State.ProposedBy)
+
+    val newTableWithDuplicateProposals =
+      this.copy(cells = updatedCells)
+
+    MonopartiteMatchingTable
+      .trimDuplicateProposalsRecursively(newTableWithDuplicateProposals)
+
+  /**
+    * Applies a symmetric rejection between two members
+    */
+  def applySymmetricRejection(proposer: A, acceptor: A): MonopartiteMatchingTable[A] =
+    val updatedCells =
+      cells
+        .updated((proposer, acceptor), MonopartiteMatchingTable.State.Rejects)
+        .updated((acceptor, proposer), MonopartiteMatchingTable.State.RejectedBy)
 
     this.copy(cells = updatedCells)
 
@@ -112,6 +131,41 @@ object MonopartiteMatchingTable:
       preferences,
       genKeySide.map(k => k -> State.Free).toMap
     )
+
+  @tailrec
+  def trimDuplicateProposalsRecursively[A](table: MonopartiteMatchingTable[A]): MonopartiteMatchingTable[A] =
+    val rejectionPairMaybe =
+      table
+        .members
+        .foldLeft(Option.empty[(A, A)]):
+          case (None, proposer) =>
+            val proposals =
+              table
+                .acceptorsAndStatesFor(proposer)
+                .collect:
+                  case (acceptor, MonopartiteMatchingTable.State.ProposedBy) =>
+                    acceptor
+
+            proposals match
+              case keeper :: firstRejection :: _ =>
+                Some(proposer -> firstRejection)
+
+              case _ =>
+                None
+
+          case (res @ Some(_), _) =>
+            res
+
+    rejectionPairMaybe match
+      case Some(rejector, rejected) =>
+        val newTable =
+          table
+            .applySymmetricRejection(rejector, rejected)
+
+        trimDuplicateProposalsRecursively(newTable)
+
+      case None =>
+        table
 
   enum ValidationError:
     case UnsupportedPopulationSize(n: Int)
