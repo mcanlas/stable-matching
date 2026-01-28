@@ -146,6 +146,7 @@ object MonopartiteStatefulTableSuite extends FunSuite:
     matches(buildFixture):
       case Right(table) =>
         val tableAfterIterations =
+          // TODO replace with loop until
           (0 until 8)
             .foldLeft(table): (acc, _) =>
               acc.findMemberAbleToProposeFirstDate match
