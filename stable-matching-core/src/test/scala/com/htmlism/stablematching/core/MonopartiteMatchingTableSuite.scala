@@ -141,3 +141,32 @@ object MonopartiteMatchingTableSuite extends FunSuite:
                 case None =>
                   tbl -> failure("could not find member able to propose")
           ._2
+
+  test("Can reject less desirable matches"):
+    matches(buildFixture):
+      case Right(table) =>
+        val tableAfterIterations =
+          (0 until 8)
+            .foldLeft(table): (acc, _) =>
+              acc.findMemberAbleToProposeFirstDate match
+                case Some((proposer, acceptor)) =>
+                  acc.applySymmetricProposal(proposer, acceptor)
+
+                case None =>
+                  acc
+
+        println:
+          MonopartiteMatchingTablePrinter
+            .generateMarkdown(tableAfterIterations)
+
+        val tableAfterRejections =
+          MonopartiteMatchingTable
+            .trimLessDesirableMatchesRecursively(tableAfterIterations)
+
+        println:
+          MonopartiteMatchingTablePrinter
+            .generateMarkdown(tableAfterRejections)
+
+        expect.eql(MonopartiteMatchingTable.State.Rejects, tableAfterRejections.getState("a", "c")) and
+          expect.eql(MonopartiteMatchingTable.State.Rejects, tableAfterRejections.getState("a", "e")) and
+          expect.eql(MonopartiteMatchingTable.State.RejectedBy, tableAfterRejections.getState("a", "d"))

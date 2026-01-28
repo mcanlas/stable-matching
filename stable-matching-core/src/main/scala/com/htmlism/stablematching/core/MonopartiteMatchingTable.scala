@@ -165,6 +165,62 @@ object MonopartiteMatchingTable:
       case None =>
         table
 
+  @tailrec
+  def trimLessDesirableMatchesRecursively[A](table: MonopartiteMatchingTable[A]): MonopartiteMatchingTable[A] =
+    val rejectionPairMaybe =
+      table
+        .members
+        .foldLeft(Option.empty[(A, A)]): (state, p) =>
+          state match
+            case None =>
+              val acceptorsAndStates =
+                table
+                  .acceptorsAndStatesFor(p)
+
+              val potentialRejected =
+                acceptorsAndStates
+                  .foldLeft(Option.empty[A]):
+                    case (acc, (acceptor, state)) =>
+                      state match
+                        case MonopartiteMatchingTable.State.ProposesTo =>
+                          None
+
+                        case MonopartiteMatchingTable.State.ProposedBy =>
+                          None
+
+                        case MonopartiteMatchingTable.State.Free =>
+                          acc match
+                            case currentRejection @ Some(_) =>
+                              currentRejection
+
+                            case None =>
+                              acceptor.some
+
+                        case MonopartiteMatchingTable.State.Rejects =>
+                          acc
+
+                        case MonopartiteMatchingTable.State.RejectedBy =>
+                          acc
+
+              potentialRejected
+                .tupleLeft(p)
+
+            case res @ Some(_) =>
+              res
+
+    rejectionPairMaybe match
+      case Some(rejector, rejected) =>
+//        println(s"$rejector rejects $rejected")
+
+        val newTable =
+          table
+            .applySymmetricRejection(rejector, rejected)
+
+        trimLessDesirableMatchesRecursively(newTable)
+
+      case None =>
+        table
+
   enum ValidationError:
     case UnsupportedPopulationSize(n: Int)
     case MissingPreferenceList(xs: NonEmptyChain[String])
