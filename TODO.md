@@ -1,0 +1,1 @@
+- [ ] should order be undone because the input list is implicitly ordered?

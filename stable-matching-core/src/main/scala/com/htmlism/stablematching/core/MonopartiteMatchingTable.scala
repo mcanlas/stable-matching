@@ -10,7 +10,26 @@ case class MonopartiteMatchingTable[A: Order](
     members: ListSet[A],
     preferences: Map[A, NonEmptyList[A]],
     cells: Map[(A, A), MonopartiteMatchingTable.State]
-)
+):
+  def findMemberAbleToPropose: Option[(A, A)] =
+    members
+      .foldLeft(Option.empty[(A, A)]):
+        case (None, proposer) =>
+          val acceptorsAndStates =
+            preferences(proposer)
+              .fproduct(a => cells((proposer, a)))
+
+          val maybeAcceptor =
+            acceptorsAndStates
+              .find: (_, state) =>
+                state == MonopartiteMatchingTable.State.Free
+              .map(_._1)
+
+          maybeAcceptor
+            .map(a => proposer -> a)
+
+        case (foundPair @ Some(_), _) =>
+          foundPair
 
 // TODO next: method for find first unproposed
 // TODO next: functional white loops
