@@ -2,7 +2,7 @@ package com.htmlism.stablematching.core
 
 import scala.collection.immutable.ListSet
 
-import cats.Order
+import cats.*
 import cats.data.*
 import cats.syntax.all.*
 
@@ -11,7 +11,10 @@ case class MonopartiteMatchingTable[A: Order](
     preferences: Map[A, NonEmptyList[A]],
     cells: Map[(A, A), MonopartiteMatchingTable.State]
 ):
-  def findMemberAbleToPropose: Option[(A, A)] =
+  /**
+    * Finds the first member able to propose to another free member
+    */
+  def findMemberAbleToProposeFirstDate: Option[(A, A)] =
     members
       .foldLeft(Option.empty[(A, A)]):
         case (None, proposer) =>
@@ -19,17 +22,41 @@ case class MonopartiteMatchingTable[A: Order](
             preferences(proposer)
               .fproduct(a => cells((proposer, a)))
 
-          val maybeAcceptor =
+          val hasFirstDate =
             acceptorsAndStates
-              .find: (_, state) =>
-                state == MonopartiteMatchingTable.State.Free
-              .map(_._1)
+              .exists: (_, state) =>
+                state == MonopartiteMatchingTable.State.ProposesTo
 
-          maybeAcceptor
-            .map(a => proposer -> a)
+          if hasFirstDate then None
+          else
+            val maybeAcceptor =
+              acceptorsAndStates
+                .find: (_, state) =>
+                  state == MonopartiteMatchingTable.State.Free
+                .map(_._1)
+
+            maybeAcceptor
+              .map(a => proposer -> a)
 
         case (foundPair @ Some(_), _) =>
           foundPair
+
+  /**
+    * Applies a symmetric proposal between two members
+    */
+  def applySymmetricProposal(proposer: A, acceptor: A): MonopartiteMatchingTable[A] =
+    val updatedCells =
+      cells
+        .updated((proposer, acceptor), MonopartiteMatchingTable.State.ProposesTo)
+        .updated((acceptor, proposer), MonopartiteMatchingTable.State.ProposedBy)
+
+    this.copy(cells = updatedCells)
+
+  /**
+    * Gets the state between a proposer and an acceptor
+    */
+  def getState(proposer: A, acceptor: A): MonopartiteMatchingTable.State =
+    cells((proposer, acceptor))
 
 // TODO next: method for find first unproposed
 // TODO next: functional white loops
@@ -101,3 +128,7 @@ object MonopartiteMatchingTable:
     case ProposedBy
     case Rejects
     case RejectedBy
+
+  object State:
+    given Eq[State] =
+      Eq.fromUniversalEquals

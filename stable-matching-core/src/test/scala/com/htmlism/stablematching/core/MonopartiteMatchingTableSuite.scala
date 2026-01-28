@@ -83,9 +83,53 @@ object MonopartiteMatchingTableSuite extends FunSuite:
     matches(buildFixture):
       case Right(table) =>
         val res =
-          table.findMemberAbleToPropose
+          table.findMemberAbleToProposeFirstDate
 
         matches(res):
           case Some((proposer, acceptor)) =>
             expect.eql("a", proposer) and
               expect.eql("b", acceptor)
+
+  test("Can apply a symmetric proposal"):
+    matches(buildFixture):
+      case Right(table) =>
+        matches(table.findMemberAbleToProposeFirstDate):
+          case Some((proposer, acceptor)) =>
+            val newTable =
+              table
+                .applySymmetricProposal(proposer, acceptor)
+
+            expect.eql(MonopartiteMatchingTable.State.ProposesTo, newTable.getState(proposer, acceptor)) and
+              expect.eql(MonopartiteMatchingTable.State.ProposedBy, newTable.getState(acceptor, proposer))
+
+  test("Can do multiple iterations"):
+    val journey = List(
+      ("a", "b"),
+      ("b", "d"),
+      ("c", "d"),
+    )
+
+    matches(buildFixture):
+      case Right(table) =>
+        journey
+          .foldLeft(table -> success):
+            case ((tbl, ret), (expectedProposer, expectedAcceptor)) =>
+              println(s"Expecting: $expectedProposer -> $expectedAcceptor")
+
+              tbl.findMemberAbleToProposeFirstDate match
+                case Some((foundProposer, foundAcceptor)) =>
+                  println(s"Found: $foundProposer -> $foundAcceptor")
+
+                  val newRet =
+                    ret and
+                      expect.eql(expectedProposer, foundProposer) and
+                      expect.eql(expectedAcceptor, foundAcceptor)
+
+                  val newTable =
+                    tbl.applySymmetricProposal(foundProposer, foundAcceptor)
+
+                  newTable -> newRet
+
+                case None =>
+                  tbl -> failure("could not find member able to propose")
+          ._2
