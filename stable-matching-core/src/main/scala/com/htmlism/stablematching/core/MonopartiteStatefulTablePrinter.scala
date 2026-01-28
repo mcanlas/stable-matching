@@ -54,7 +54,7 @@ object MonopartiteStatefulTablePrinter:
   private def stateToString[A: Show](state: MonopartiteStatefulTable.State): String =
     state match
       case MonopartiteStatefulTable.State.Free =>
-        ""
+        "➖"
       case MonopartiteStatefulTable.State.ProposesTo =>
         "😸"
       case MonopartiteStatefulTable.State.ProposedBy =>
