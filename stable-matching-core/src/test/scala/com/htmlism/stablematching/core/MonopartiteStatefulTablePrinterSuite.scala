@@ -5,7 +5,7 @@ import scala.collection.immutable.ListSet
 import cats.data.NonEmptyList
 import weaver.*
 
-object MonopartiteStatefulTablePrinterSuite$ extends FunSuite:
+object MonopartiteStatefulTablePrinterSuite extends FunSuite:
   private def buildFixture =
     // https://www.youtube.com/watch?v=5QLxAp8mRKo
 

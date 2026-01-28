@@ -6,7 +6,7 @@ import cats.*
 import cats.data.*
 import weaver.*
 
-object MonopartiteStatefulTableSuite$ extends FunSuite:
+object MonopartiteStatefulTableSuite extends FunSuite:
   test("Matcher requires an even population"):
     val oddPopulation =
       ListSet("a")
