@@ -192,3 +192,9 @@ object MonopartiteMatchTable:
         table
           .asRight // means stop
           .asRight // means error free
+
+  def findAndDeleteCycles[A](
+      table: MonopartiteMatchTable[A]
+  ): Res[MonopartiteMatchTable[A]] =
+    FlatMap[Res]
+      .tailRecM(table)(findAndDeleteCycleStep)
