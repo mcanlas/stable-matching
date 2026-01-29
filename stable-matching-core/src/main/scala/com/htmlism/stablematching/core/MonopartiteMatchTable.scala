@@ -179,3 +179,16 @@ object MonopartiteMatchTable:
               .fromList(remaining)
               .pipe(Either.fromOption(_, "No remaining members in cycle rejection"))
         yield (newTable -> remainingNel).asLeft // keep going
+
+  def findAndDeleteCycleStep[A](
+      table: MonopartiteMatchTable[A]
+  ): Res[Either[MonopartiteMatchTable[A], MonopartiteMatchTable[A]]] =
+    table.findCycle match
+      case Right(cycle) =>
+        rejectReverseCycle(table, cycle)
+          .map(_.asLeft) // means keep going
+
+      case Left(_) =>
+        table
+          .asRight // means stop
+          .asRight // means error free
