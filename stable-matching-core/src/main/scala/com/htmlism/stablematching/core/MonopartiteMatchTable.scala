@@ -3,13 +3,65 @@ package com.htmlism.stablematching.core
 import scala.collection.immutable.SortedMap
 import scala.util.chaining.*
 
+import cats.*
 import cats.data.*
 import cats.syntax.all.*
 
 final case class MonopartiteMatchTable[A](
     members: NonEmptyList[A],
     matches: NonEmptyMap[A, NonEmptyList[A]]
-)
+):
+  private type Res[A] =
+    Either[String, A]
+
+  def findCycle: Either[String, MonopartiteMatchTable.RemoveCycleState.ReverseCycle[A]] =
+    FlatMap[Res]
+      .tailRecM(Option.empty[NonEmptyList[A]])(findReverseCycleStep)
+      .map(xs => MonopartiteMatchTable.RemoveCycleState.ReverseCycle(xs))
+
+  def findReverseCycleStep(acc: Option[NonEmptyList[A]]): Res[Either[Option[NonEmptyList[A]], NonEmptyList[A]]] =
+    acc match
+      case None =>
+        // left means keep going
+        findCycleSeed
+          .map(x => NonEmptyList.one(x).some.asLeft)
+
+      case Some(xs) =>
+        // cycle is complete
+        if xs.head == xs.last && xs.length > 1 then
+          xs
+            .asRight // means stop processing
+            .asRight // means error free
+        else
+          val lastMatchMaybe =
+            for matchesAtHead <-
+                matches(xs.head)
+                  .pipe(Either.fromOption(_, s"No matches for head ${xs.head}"))
+            yield matchesAtHead.last
+
+          lastMatchMaybe
+            .map(sm => (sm :: xs).some.asLeft)
+
+  private def findCycleSeed: Res[A] =
+    for
+      membersWithMatchesList <- members
+        .traverse: p =>
+          matches(p)
+            .pipe(Either.fromOption(_, s"No matches for member $p"))
+            .tupleLeft(p)
+
+      cycleCandidates =
+        membersWithMatchesList
+          .filter(_._2.size > 1)
+
+      proposerWithCycle <-
+        cycleCandidates match
+          case Nil =>
+            Left("No cycle candidates")
+
+          case (proposer, _) :: _ =>
+            proposer.asRight
+    yield proposerWithCycle
 
 object MonopartiteMatchTable:
   def build[A: Ordering](
@@ -52,3 +104,8 @@ object MonopartiteMatchTable:
       nelMembers,
       nonEmptyMemberMap
     )
+
+  enum RemoveCycleState[A]:
+    case object SearchingForCycle
+    case ReverseCycle(xs: NonEmptyList[A])
+    case object NoCycleFound

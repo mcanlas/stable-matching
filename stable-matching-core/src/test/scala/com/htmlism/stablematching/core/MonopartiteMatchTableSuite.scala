@@ -61,3 +61,41 @@ object MonopartiteMatchTableSuite extends FunSuite:
                 .generateMarkdown(matchTable)
 
             expect(true)
+
+  test("Can find a cycle"):
+    val prog =
+      for
+        statefulTable <- buildFixture
+
+        tableAfterIterations =
+          (0 until 8)
+            .foldLeft(statefulTable): (acc, _) =>
+              acc.findMemberAbleToProposeFirstDate match
+                case Some((proposer, acceptor)) =>
+                  acc.applySymmetricProposal(proposer, acceptor)
+
+                case None =>
+                  acc
+
+        tableAfterRejections =
+          MonopartiteStatefulTable
+            .trimLessDesirableMatchesRecursively(tableAfterIterations)
+
+        matchTable <-
+          MonopartiteMatchTable
+            .build(tableAfterRejections)
+
+        _ = println:
+          MonopartiteMatchTablePrinter
+            .generateMarkdown(matchTable)
+
+        ret <-
+          matchTable.findCycle
+
+        _ = println:
+          ret
+      yield ()
+
+    matches(prog):
+      case Right(_) =>
+        success
