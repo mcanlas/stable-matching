@@ -51,36 +51,14 @@ object MonopartiteStatefulTableSuite extends FunSuite:
         expect.eql("a", p) and
           expect.eql("b", k)
 
-  private def buildFixture =
-    // https://www.youtube.com/watch?v=5QLxAp8mRKo
-
-    val population =
-      ListSet("a", "b", "c", "d", "e", "f")
-
-    val preferences =
-      Map(
-        "a" -> NonEmptyList.of("b", "d", "f", "c", "e"),
-        "b" -> NonEmptyList.of("d", "e", "f", "a", "c"),
-        "c" -> NonEmptyList.of("d", "e", "f", "a", "b"),
-        "d" -> NonEmptyList.of("f", "c", "a", "e", "b"),
-        "e" -> NonEmptyList.of("f", "c", "d", "b", "a"),
-        "f" -> NonEmptyList.of("a", "b", "d", "c", "e")
-      )
-
-    MonopartiteStatefulTable
-      .build(
-        population,
-        preferences
-      )
-
   test("Builds a matching table from valid input"):
-    matches(buildFixture):
+    matches(Fixtures.buildPopSixEmptyTable):
       case Right(table) =>
         expect.eql(6, table.members.size) and
           expect.eql(6, table.preferences.size)
 
   test("Can find a member able to propose"):
-    matches(buildFixture):
+    matches(Fixtures.buildPopSixEmptyTable):
       case Right(table) =>
         val res =
           table.findMemberAbleToProposeFirstDate
@@ -91,7 +69,7 @@ object MonopartiteStatefulTableSuite extends FunSuite:
               expect.eql("b", acceptor)
 
   test("Can apply a symmetric proposal"):
-    matches(buildFixture):
+    matches(Fixtures.buildPopSixEmptyTable):
       case Right(table) =>
         matches(table.findMemberAbleToProposeFirstDate):
           case Some((proposer, acceptor)) =>
@@ -115,7 +93,7 @@ object MonopartiteStatefulTableSuite extends FunSuite:
       ("f", "a")
     )
 
-    matches(buildFixture):
+    matches(Fixtures.buildPopSixEmptyTable):
       case Right(table) =>
         journey
           .foldLeft(table -> success):
@@ -143,7 +121,7 @@ object MonopartiteStatefulTableSuite extends FunSuite:
           ._2
 
   test("Can reject less desirable matches"):
-    matches(buildFixture):
+    matches(Fixtures.buildPopSixEmptyTable):
       case Right(table) =>
         val tableAfterIterations =
           // TODO replace with loop until

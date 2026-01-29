@@ -1,36 +1,11 @@
 package com.htmlism.stablematching.core
 
-import scala.collection.immutable.ListSet
-
 import cats.*
-import cats.data.*
 import weaver.*
 
 object MonopartiteMatchTableSuite extends FunSuite:
-  private def buildFixture =
-    // https://www.youtube.com/watch?v=5QLxAp8mRKo
-
-    val population =
-      ListSet("a", "b", "c", "d", "e", "f")
-
-    val preferences =
-      Map(
-        "a" -> NonEmptyList.of("b", "d", "f", "c", "e"),
-        "b" -> NonEmptyList.of("d", "e", "f", "a", "c"),
-        "c" -> NonEmptyList.of("d", "e", "f", "a", "b"),
-        "d" -> NonEmptyList.of("f", "c", "a", "e", "b"),
-        "e" -> NonEmptyList.of("f", "c", "d", "b", "a"),
-        "f" -> NonEmptyList.of("a", "b", "d", "c", "e")
-      )
-
-    MonopartiteStatefulTable
-      .build(
-        population,
-        preferences
-      )
-
   test("Can build from a stateful table"):
-    matches(buildFixture):
+    matches(Fixtures.buildPopSixEmptyTable):
       case Right(table) =>
         val tableAfterIterations =
           (0 until 8)
@@ -65,7 +40,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
   test("Can find a cycle"):
     val prog =
       for
-        statefulTable <- buildFixture
+        statefulTable <- Fixtures.buildPopSixEmptyTable
 
         tableAfterIterations =
           (0 until 8)
@@ -103,7 +78,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
   test("Can delete a cycle"):
     val prog =
       for
-        statefulTable <- buildFixture
+        statefulTable <- Fixtures.buildPopSixEmptyTable
 
         tableAfterIterations =
           (0 until 8)
@@ -146,7 +121,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
   test("Can find and delete a cycle"):
     val prog =
       for
-        statefulTable <- buildFixture
+        statefulTable <- Fixtures.buildPopSixEmptyTable
 
         tableAfterIterations =
           (0 until 8)
@@ -190,7 +165,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
   test("Can find and delete two cycles recursively"):
     val prog =
       for
-        statefulTable <- buildFixture
+        statefulTable <- Fixtures.buildPopSixEmptyTable
 
         tableAfterIterations =
           (0 until 8)
