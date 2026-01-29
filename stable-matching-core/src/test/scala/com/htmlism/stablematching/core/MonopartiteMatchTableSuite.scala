@@ -99,3 +99,46 @@ object MonopartiteMatchTableSuite extends FunSuite:
     matches(prog):
       case Right(_) =>
         success
+
+  test("Can delete a cycle"):
+    val prog =
+      for
+        statefulTable <- buildFixture
+
+        tableAfterIterations =
+          (0 until 8)
+            .foldLeft(statefulTable): (acc, _) =>
+              acc.findMemberAbleToProposeFirstDate match
+                case Some((proposer, acceptor)) =>
+                  acc.applySymmetricProposal(proposer, acceptor)
+
+                case None =>
+                  acc
+
+        tableAfterRejections =
+          MonopartiteStatefulTable
+            .trimLessDesirableMatchesRecursively(tableAfterIterations)
+
+        matchTable <-
+          MonopartiteMatchTable
+            .build(tableAfterRejections)
+
+        _ = println:
+          MonopartiteMatchTablePrinter
+            .generateMarkdown(matchTable)
+
+        cycle <-
+          matchTable.findCycle
+
+        tableAfterCycleRemoval <-
+          MonopartiteMatchTable
+            .rejectReverseCycle(matchTable, cycle)
+
+        _ = println:
+          MonopartiteMatchTablePrinter
+            .generateMarkdown(tableAfterCycleRemoval)
+      yield ()
+
+    matches(prog):
+      case Right(_) =>
+        success

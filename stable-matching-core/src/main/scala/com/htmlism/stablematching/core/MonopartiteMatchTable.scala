@@ -11,15 +11,44 @@ final case class MonopartiteMatchTable[A](
     members: NonEmptyList[A],
     matches: NonEmptyMap[A, NonEmptyList[A]]
 ):
-  private type Res[A] =
-    Either[String, A]
+  import MonopartiteMatchTable.*
 
-  def findCycle: Either[String, MonopartiteMatchTable.RemoveCycleState.ReverseCycle[A]] =
+  def applySymmetricRejection(x: A, y: A): Res[MonopartiteMatchTable[A]] =
+    for
+      xMatches <-
+        matches(x)
+          .pipe(Either.fromOption(_, s"No matches for member $x"))
+
+      yMatches <-
+        matches(y)
+          .pipe(Either.fromOption(_, s"No matches for member $x"))
+
+      xMatchesWithoutY <-
+        xMatches
+          .filterNot(_ == y)
+          .pipe(NonEmptyList.fromList)
+          .pipe(Either.fromOption(_, s"Removing $y left no matches for $x"))
+
+      yMatchesWithoutX <-
+        yMatches
+          .filterNot(_ == x)
+          .pipe(NonEmptyList.fromList)
+          .pipe(Either.fromOption(_, s"Removing $x left no matches for $y"))
+
+      updatedMatches =
+        matches
+          .add(x, xMatchesWithoutY)
+          .add(y, yMatchesWithoutX)
+    yield this.copy(matches = updatedMatches)
+
+  def findCycle: Either[String, RemoveCycleState.ReverseCycle[A]] =
     FlatMap[Res]
       .tailRecM(Option.empty[NonEmptyList[A]])(findReverseCycleStep)
-      .map(xs => MonopartiteMatchTable.RemoveCycleState.ReverseCycle(xs))
+      .map(xs => RemoveCycleState.ReverseCycle(xs))
 
-  def findReverseCycleStep(acc: Option[NonEmptyList[A]]): Res[Either[Option[NonEmptyList[A]], NonEmptyList[A]]] =
+  private def findReverseCycleStep(
+      acc: Option[NonEmptyList[A]]
+  ): Res[Either[Option[NonEmptyList[A]], NonEmptyList[A]]] =
     acc match
       case None =>
         // left means keep going
@@ -64,9 +93,12 @@ final case class MonopartiteMatchTable[A](
     yield proposerWithCycle
 
 object MonopartiteMatchTable:
+  private type Res[A] =
+    Either[String, A]
+
   def build[A: Ordering](
       statefulTable: MonopartiteStatefulTable[A]
-  ): Either[String, MonopartiteMatchTable[A]] =
+  ): Res[MonopartiteMatchTable[A]] =
     val memberMapRes =
       statefulTable
         .members
@@ -109,3 +141,41 @@ object MonopartiteMatchTable:
     case object SearchingForCycle
     case ReverseCycle(xs: NonEmptyList[A])
     case object NoCycleFound
+
+  def rejectReverseCycle[A](
+      table: MonopartiteMatchTable[A],
+      cycle: RemoveCycleState.ReverseCycle[A]
+  ): Res[MonopartiteMatchTable[A]] =
+    for
+      _ <- Either.cond(
+        cycle.xs.size % 2 != 0,
+        (),
+        "Reverse cycle size must be odd"
+      )
+
+      newTable <-
+        FlatMap[Res]
+          .tailRecM((table, cycle.xs))(rejectReverseCycleStep)
+    yield newTable
+
+  private type RejectState[A] =
+    (MonopartiteMatchTable[A], NonEmptyList[A])
+
+  private def rejectReverseCycleStep[A](acc: RejectState[A]): Res[Either[RejectState[A], MonopartiteMatchTable[A]]] =
+    val (table, rejects) = acc
+
+    rejects match
+      case NonEmptyList(_, Nil) =>
+        table.asRight.asRight
+
+      case NonEmptyList(one, two :: remaining) =>
+        for
+          newTable <-
+            table
+              .applySymmetricRejection(one, two)
+
+          remainingNel <-
+            NonEmptyList
+              .fromList(remaining)
+              .pipe(Either.fromOption(_, "No remaining members in cycle rejection"))
+        yield (newTable -> remainingNel).asLeft // keep going
