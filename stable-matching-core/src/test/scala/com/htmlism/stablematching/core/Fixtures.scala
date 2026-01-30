@@ -25,3 +25,22 @@ object Fixtures:
         population,
         preferences
       )
+
+  def buildUnstablePopFourEmptyTable
+      : Either[MonopartiteStatefulTable.ValidationError, MonopartiteStatefulTable[String]] =
+    val population =
+      ListSet("a", "b", "c", "d")
+
+    val preferences =
+      Map(
+        "a" -> NonEmptyList.of("b", "c", "d"),
+        "b" -> NonEmptyList.of("c", "a", "d"),
+        "c" -> NonEmptyList.of("a", "b", "d"),
+        "d" -> NonEmptyList.of("a", "b", "c"),
+      )
+
+    MonopartiteStatefulTable
+      .build(
+        population,
+        preferences
+      )

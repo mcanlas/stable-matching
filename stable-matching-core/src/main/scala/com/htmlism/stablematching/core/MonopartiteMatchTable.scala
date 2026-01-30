@@ -17,11 +17,11 @@ final case class MonopartiteMatchTable[A](
     for
       xMatches <-
         matches(x)
-          .pipe(Either.fromOption(_, s"No matches for member $x"))
+          .pipe(Either.fromOption(_, s"No matches for first member $x"))
 
       yMatches <-
         matches(y)
-          .pipe(Either.fromOption(_, s"No matches for member $x"))
+          .pipe(Either.fromOption(_, s"No matches for second member $y"))
 
       xMatchesWithoutY <-
         xMatches
@@ -116,7 +116,9 @@ object MonopartiteMatchTable:
           val nelValidAcceptorsRes =
             NonEmptyList
               .fromList(validAcceptors)
-              .pipe(Either.fromOption(_, s"No matches for member $p"))
+              .pipe(
+                Either.fromOption(_, s"Member $p has no matches in stateful table during match table build process")
+              )
 
           nelValidAcceptorsRes
             .tupleLeft(p)

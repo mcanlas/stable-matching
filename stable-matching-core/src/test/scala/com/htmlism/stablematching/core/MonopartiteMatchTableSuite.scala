@@ -204,3 +204,39 @@ object MonopartiteMatchTableSuite extends FunSuite:
     matches(prog):
       case Right(_) =>
         success
+
+  test("Unstable"):
+    val prog =
+      for
+        statefulTable <- Fixtures.buildUnstablePopFourEmptyTable
+
+        tableAfterIterations =
+          (0 until 4)
+            .foldLeft(statefulTable): (acc, _) =>
+              acc.findMemberAbleToProposeFirstDate match
+                case Some((proposer, acceptor)) =>
+                  acc.applySymmetricProposal(proposer, acceptor)
+
+                case None =>
+                  acc
+
+        tableAfterRejections =
+          MonopartiteStatefulTable
+            .trimLessDesirableMatchesRecursively(tableAfterIterations)
+
+        _ = println:
+          MonopartiteStatefulTablePrinter
+            .generateMarkdown(tableAfterRejections)
+
+        matchTable <-
+          MonopartiteMatchTable
+            .build(tableAfterRejections)
+
+        _ = println:
+          MonopartiteMatchTablePrinter
+            .generateMarkdown(matchTable)
+      yield ()
+
+    matches(prog):
+      case Left(_) =>
+        success
