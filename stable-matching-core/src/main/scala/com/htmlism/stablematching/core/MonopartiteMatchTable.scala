@@ -41,10 +41,10 @@ final case class MonopartiteMatchTable[A](
           .add(y, yMatchesWithoutX)
     yield this.copy(matches = updatedMatches)
 
-  def findCycle: Either[String, RemoveCycleState.ReverseCycle[A]] =
+  def findCycle: Either[String, ReverseCycle[A]] =
     FlatMap[Res]
       .tailRecM(Option.empty[NonEmptyList[A]])(findReverseCycleStep)
-      .map(xs => RemoveCycleState.ReverseCycle(xs))
+      .map(xs => ReverseCycle(xs))
 
   private def findReverseCycleStep(
       acc: Option[NonEmptyList[A]]
@@ -139,14 +139,11 @@ object MonopartiteMatchTable:
       nonEmptyMemberMap
     )
 
-  enum RemoveCycleState[A]:
-    case object SearchingForCycle
-    case ReverseCycle(xs: NonEmptyList[A])
-    case object NoCycleFound
+  final case class ReverseCycle[A](xs: NonEmptyList[A])
 
   def rejectReverseCycle[A](
       table: MonopartiteMatchTable[A],
-      cycle: RemoveCycleState.ReverseCycle[A]
+      cycle: ReverseCycle[A]
   ): Res[MonopartiteMatchTable[A]] =
     for
       _ <- Either.cond(
