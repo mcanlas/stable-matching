@@ -1,6 +1,7 @@
 package com.htmlism.stablematching.core
 
 import cats.*
+import cats.syntax.all.*
 import weaver.*
 
 object BipartiteStatefulTableSuite extends FunSuite:
@@ -55,15 +56,18 @@ object BipartiteStatefulTableSuite extends FunSuite:
 //          expect.eql(6, table.preferences.size)
 
   test("Can find a member able to propose"):
-    matches(MonoFixtures.buildPopSixEmptyTable):
-      case Right(table) =>
-        val res =
-          table.findMemberAbleToProposeFirstDate
+    val prog =
+      for
+        table <- BiFixtures.buildFiveAndFive.asRight
 
-        matches(res):
-          case Some((proposer, acceptor)) =>
-            expect.eql("a", proposer) and
-              expect.eql("b", acceptor)
+        firstProposer <- table
+          .findProposerAbleToPropose
+          .toRight("no member able to propose found")
+      yield firstProposer
+
+    matches(prog):
+      case Right(p) =>
+        expect.eql("A", p)
 
   test("Can apply a symmetric proposal"):
     matches(MonoFixtures.buildPopSixEmptyTable):
