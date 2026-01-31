@@ -7,6 +7,7 @@ lazy val core =
     .dependsOn(data)
     .withCats
     .withTesting
+    .enablePublishing
 
 lazy val data =
   module("data")
