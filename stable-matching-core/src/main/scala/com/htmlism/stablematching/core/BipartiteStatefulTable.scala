@@ -54,6 +54,14 @@ final case class BipartiteStatefulTable[P, A](
       acceptorStates = updatedAcceptorStates
     )
 
+  def applyProposalStep: BipartiteStatefulTable[P, A] =
+    findProposalPair match
+      case None =>
+        this
+
+      case Some((p, a)) =>
+        applySymmetricProposal(p, a)
+
 //  /**
 //   * Applies a symmetric rejection between two members
 //   */
