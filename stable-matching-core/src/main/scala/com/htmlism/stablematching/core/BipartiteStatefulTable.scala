@@ -138,6 +138,37 @@ object BipartiteStatefulTable:
             List(a.toString) ++
             acceptorCells
 
+  def build[P, A](
+      proposerPreferences: List[(P, NonEmptyList[A])],
+      acceptorPreferences: List[(A, NonEmptyList[P])]
+  ): BipartiteStatefulTable[P, A] =
+    val proposerPreferencesMap =
+      ListMap
+        .from(proposerPreferences)
+
+    val acceptorPreferencesMap =
+      ListMap
+        .from(acceptorPreferences)
+
+    val proposerStates =
+      for
+        p <- proposerPreferences.map(_._1)
+        a <- proposerPreferencesMap(p).toList
+      yield (p, a) -> BipartiteStatefulTable.State.Free
+
+    val acceptorStates =
+      for
+        a <- acceptorPreferences.map(_._1)
+        p <- acceptorPreferencesMap(a).toList
+      yield (a, p) -> BipartiteStatefulTable.State.Free
+
+    BipartiteStatefulTable(
+      proposerPreferencesMap,
+      acceptorPreferencesMap,
+      ListMap.from(proposerStates),
+      ListMap.from(acceptorStates)
+    )
+
   private def stateToString(state: State): String =
     state match
       case State.Free =>
