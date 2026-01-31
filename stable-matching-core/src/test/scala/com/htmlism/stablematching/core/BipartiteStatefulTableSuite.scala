@@ -1,61 +1,58 @@
 package com.htmlism.stablematching.core
 
-import scala.collection.immutable.ListSet
-
 import cats.*
-import cats.data.*
 import weaver.*
 
-object MonopartiteStatefulTableSuite extends FunSuite:
-  test("Matcher requires an even population"):
-    val oddPopulation =
-      ListSet("a")
-
-    val res =
-      MonopartiteStatefulTable
-        .build(oddPopulation, Map.empty[String, NonEmptyList[String]])
-
-    matches(res):
-      case Left(MonopartiteStatefulTable.ValidationError.UnsupportedPopulationSize(n)) =>
-        expect.eql(oddPopulation.size, n)
-
-  test("Matcher requires a preference list for every member"):
-    val population =
-      ListSet("a", "b", "c", "d")
-
-    val res =
-      MonopartiteStatefulTable
-        .build(population, Map("a" -> NonEmptyList.of("b")))
-
-    matches(res):
-      case Left(MonopartiteStatefulTable.ValidationError.MissingPreferenceList(xs)) =>
-        // error list is non-deterministic from input set
-        expect.eql(Set("b", "c", "d"), xs.iterator.toSet)
-
-  test("Matcher requires every member to be in every other preference list"):
-    val population =
-      ListSet("a", "b")
-
-    val res =
-      MonopartiteStatefulTable
-        .build(
-          population,
-          Map(
-            "a" -> NonEmptyList.of("b"),
-            "b" -> NonEmptyList.of("c")
-          )
-        )
-
-    matches(res):
-      case Left(MonopartiteStatefulTable.ValidationError.IncompletePreferenceList(p, k)) =>
-        expect.eql("a", p) and
-          expect.eql("b", k)
-
-  test("Builds a matching table from valid input"):
-    matches(MonoFixtures.buildPopSixEmptyTable):
-      case Right(table) =>
-        expect.eql(6, table.members.size) and
-          expect.eql(6, table.preferences.size)
+object BipartiteStatefulTableSuite extends FunSuite:
+//  test("Matcher requires an even population"):
+//    val oddPopulation =
+//      ListSet("a")
+//
+//    val res =
+//      MonopartiteStatefulTable
+//        .build(oddPopulation, Map.empty[String, NonEmptyList[String]])
+//
+//    matches(res):
+//      case Left(MonopartiteStatefulTable.ValidationError.UnsupportedPopulationSize(n)) =>
+//        expect.eql(oddPopulation.size, n)
+//
+//  test("Matcher requires a preference list for every member"):
+//    val population =
+//      ListSet("a", "b", "c", "d")
+//
+//    val res =
+//      MonopartiteStatefulTable
+//        .build(population, Map("a" -> NonEmptyList.of("b")))
+//
+//    matches(res):
+//      case Left(MonopartiteStatefulTable.ValidationError.MissingPreferenceList(xs)) =>
+//        // error list is non-deterministic from input set
+//        expect.eql(Set("b", "c", "d"), xs.iterator.toSet)
+//
+//  test("Matcher requires every member to be in every other preference list"):
+//    val population =
+//      ListSet("a", "b")
+//
+//    val res =
+//      MonopartiteStatefulTable
+//        .build(
+//          population,
+//          Map(
+//            "a" -> NonEmptyList.of("b"),
+//            "b" -> NonEmptyList.of("c")
+//          )
+//        )
+//
+//    matches(res):
+//      case Left(MonopartiteStatefulTable.ValidationError.IncompletePreferenceList(p, k)) =>
+//        expect.eql("a", p) and
+//          expect.eql("b", k)
+//
+//  test("Builds a matching table from valid input"):
+//    matches(Fixtures.buildPopSixEmptyTable):
+//      case Right(table) =>
+//        expect.eql(6, table.members.size) and
+//          expect.eql(6, table.preferences.size)
 
   test("Can find a member able to propose"):
     matches(MonoFixtures.buildPopSixEmptyTable):

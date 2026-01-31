@@ -4,7 +4,7 @@ import weaver.*
 
 object MonopartiteStatefulTablePrinterSuite extends FunSuite:
   test("prints"):
-    matches(Fixtures.buildPopSixEmptyTable):
+    matches(MonoFixtures.buildPopSixEmptyTable):
       case Right(table) =>
         println:
           MonopartiteStatefulTablePrinter

@@ -4,7 +4,7 @@ import scala.collection.immutable.ListSet
 
 import cats.data.NonEmptyList
 
-object Fixtures:
+object MonoFixtures:
   // https://www.youtube.com/watch?v=5QLxAp8mRKo
   def buildPopSixEmptyTable: Either[MonopartiteStatefulTable.ValidationError, MonopartiteStatefulTable[String]] =
     val population =

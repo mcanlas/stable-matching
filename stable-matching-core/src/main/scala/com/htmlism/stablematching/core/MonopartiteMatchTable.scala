@@ -93,9 +93,6 @@ final case class MonopartiteMatchTable[A](
     yield proposerWithCycle
 
 object MonopartiteMatchTable:
-  private type Res[A] =
-    Either[String, A]
-
   def build[A: Ordering](
       statefulTable: MonopartiteStatefulTable[A]
   ): Res[MonopartiteMatchTable[A]] =

@@ -5,7 +5,7 @@ import weaver.*
 
 object MonopartiteMatchTableSuite extends FunSuite:
   test("Can build from a stateful table"):
-    matches(Fixtures.buildPopSixEmptyTable):
+    matches(MonoFixtures.buildPopSixEmptyTable):
       case Right(table) =>
         val tableAfterIterations =
           (0 until 8)
@@ -40,7 +40,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
   test("Can find a cycle"):
     val prog =
       for
-        statefulTable <- Fixtures.buildPopSixEmptyTable
+        statefulTable <- MonoFixtures.buildPopSixEmptyTable
 
         tableAfterIterations =
           (0 until 8)
@@ -78,7 +78,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
   test("Can delete a cycle"):
     val prog =
       for
-        statefulTable <- Fixtures.buildPopSixEmptyTable
+        statefulTable <- MonoFixtures.buildPopSixEmptyTable
 
         tableAfterIterations =
           (0 until 8)
@@ -121,7 +121,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
   test("Can find and delete a cycle"):
     val prog =
       for
-        statefulTable <- Fixtures.buildPopSixEmptyTable
+        statefulTable <- MonoFixtures.buildPopSixEmptyTable
 
         tableAfterIterations =
           (0 until 8)
@@ -165,7 +165,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
   test("Can find and delete two cycles recursively"):
     val prog =
       for
-        statefulTable <- Fixtures.buildPopSixEmptyTable
+        statefulTable <- MonoFixtures.buildPopSixEmptyTable
 
         tableAfterIterations =
           (0 until 8)
@@ -208,7 +208,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
   test("Unstable"):
     val prog =
       for
-        statefulTable <- Fixtures.buildUnstablePopFourEmptyTable
+        statefulTable <- MonoFixtures.buildUnstablePopFourEmptyTable
 
         tableAfterIterations =
           (0 until 4)
