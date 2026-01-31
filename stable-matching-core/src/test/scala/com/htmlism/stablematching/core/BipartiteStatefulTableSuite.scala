@@ -92,7 +92,7 @@ object BipartiteStatefulTableSuite extends FunSuite:
         expect.same(BipartiteStatefulTable.State.ProposesTo, tbl.proposerStates(p -> a)) and
           expect.same(BipartiteStatefulTable.State.ProposedBy, tbl.acceptorStates(a -> p))
 
-  test("Can do multiple iterations"):
+  test("Can do multiple iterations, with last rejection"):
     val prog =
       for
         table <- BiFixtures.buildFiveAndFive.asRight

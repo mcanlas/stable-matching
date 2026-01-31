@@ -53,6 +53,33 @@ final case class BipartiteStatefulTable[P, A](
       proposerStates = updatedProposerStates,
       acceptorStates = updatedAcceptorStates
     )
+      .rejectDuplicateProposalsAt(acceptor)
+
+  private def rejectDuplicateProposalsAt(a: A): BipartiteStatefulTable[P, A] =
+    val proposals =
+      acceptorPreferences(a)
+        .filter(p => acceptorStates((a, p)) == State.ProposedBy)
+
+    assert(proposals.size <= 2, s"More than two proposals found for acceptor $a")
+
+    proposals match
+      case keeper :: dropped :: Nil =>
+        val updatedProposerStates =
+          proposerStates
+            .updated((dropped, a), State.RejectedBy)
+
+        val updatedAcceptorStates =
+          acceptorStates
+            .updated((a, dropped), State.Rejects)
+
+        copy(
+          proposerStates = updatedProposerStates,
+          acceptorStates = updatedAcceptorStates
+        )
+
+      // zero or one proposals
+      case _ =>
+        this
 
   def applyProposalStep: BipartiteStatefulTable[P, A] =
     findProposalPair match
