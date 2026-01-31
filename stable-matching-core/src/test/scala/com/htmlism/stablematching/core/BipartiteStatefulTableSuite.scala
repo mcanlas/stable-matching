@@ -114,7 +114,7 @@ object BipartiteStatefulTableSuite extends FunSuite:
         table <- BiFixtures.buildFiveAndFive.asRight
 
         stableMatch =
-          FlatMap[Id].tailRecM(table)(BipartiteStatefulTable.applyProposalStepId)
+          table.applyUntilStable
 
         _ = println(MarkdownTablePrinter.generateMarkdown(stableMatch))
       yield ()
@@ -129,7 +129,7 @@ object BipartiteStatefulTableSuite extends FunSuite:
         table <- BiFixtures.buildFiveAndFiveReverse.asRight
 
         stableMatch =
-          FlatMap[Id].tailRecM(table)(BipartiteStatefulTable.applyProposalStepId)
+          table.applyUntilStable
 
         _ = println(MarkdownTablePrinter.generateMarkdown(stableMatch))
       yield ()

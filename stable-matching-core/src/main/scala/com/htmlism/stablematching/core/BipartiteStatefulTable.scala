@@ -3,6 +3,7 @@ package com.htmlism.stablematching.core
 import scala.collection.immutable.ListMap
 import scala.util.chaining.*
 
+import cats.*
 import cats.data.NonEmptyList
 import cats.syntax.all.*
 
@@ -89,16 +90,9 @@ final case class BipartiteStatefulTable[P, A](
       case Some((p, a)) =>
         applySymmetricProposal(p, a)
 
-//  /**
-//   * Applies a symmetric rejection between two members
-//   */
-//  def applySymmetricRejection(proposer: P, acceptor: A): BipartiteStatefulTable[P, A] =
-//    val updatedCells =
-//      cells
-//        .updated((proposer, acceptor), BipartiteStatefulTable.State.Rejects)
-//        .updated((acceptor, proposer), BipartiteStatefulTable.State.RejectedBy)
-//
-//    this.copy(cells = updatedCells)
+  def applyUntilStable: BipartiteStatefulTable[P, A] =
+    FlatMap[Id]
+      .tailRecM(this)(applyProposalStepId)
 
 object BipartiteStatefulTable:
   given [P, A]: Tabular[BipartiteStatefulTable[P, A]] with
