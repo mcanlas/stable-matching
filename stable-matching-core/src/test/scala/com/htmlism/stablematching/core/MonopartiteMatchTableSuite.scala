@@ -32,7 +32,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
         matches(matchTableRes):
           case Right(matchTable) =>
             println:
-              MonopartiteMatchTablePrinter
+              MarkdownTablePrinter
                 .generateMarkdown(matchTable)
 
             expect(true)
@@ -61,7 +61,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
             .build(tableAfterRejections)
 
         _ = println:
-          MonopartiteMatchTablePrinter
+          MarkdownTablePrinter
             .generateMarkdown(matchTable)
 
         ret <-
@@ -99,7 +99,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
             .build(tableAfterRejections)
 
         _ = println:
-          MonopartiteMatchTablePrinter
+          MarkdownTablePrinter
             .generateMarkdown(matchTable)
 
         cycle <-
@@ -110,7 +110,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
             .rejectReverseCycle(matchTable, cycle)
 
         _ = println:
-          MonopartiteMatchTablePrinter
+          MarkdownTablePrinter
             .generateMarkdown(tableAfterCycleRemoval)
       yield ()
 
@@ -154,7 +154,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
             case Left(oneEval) => Right(oneEval)
 
         _ = println:
-          MonopartiteMatchTablePrinter
+          MarkdownTablePrinter
             .generateMarkdown(tableAfterCycleRemoval)
       yield ()
 
@@ -197,7 +197,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
             .findAndDeleteCycles(matchTable)
 
         _ = println:
-          MonopartiteMatchTablePrinter
+          MarkdownTablePrinter
             .generateMarkdown(tableAfterCycleRemovals)
       yield ()
 
@@ -233,7 +233,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
             .build(tableAfterRejections)
 
         _ = println:
-          MonopartiteMatchTablePrinter
+          MarkdownTablePrinter
             .generateMarkdown(matchTable)
       yield ()
 
