@@ -77,8 +77,8 @@ object MonopartiteStatefulTableSuite extends FunSuite:
               table
                 .applySymmetricProposal(proposer, acceptor)
 
-            expect.eql(MonopartiteStatefulTable.State.ProposesTo, newTable.getState(proposer, acceptor)) and
-              expect.eql(MonopartiteStatefulTable.State.ProposedBy, newTable.getState(acceptor, proposer))
+            expect.same(MonopartiteStatefulTable.State.ProposesTo, newTable.getState(proposer, acceptor)) and
+              expect.same(MonopartiteStatefulTable.State.ProposedBy, newTable.getState(acceptor, proposer))
 
   test("Can do multiple iterations"):
     // https://www.youtube.com/watch?v=5QLxAp8mRKo
@@ -146,6 +146,6 @@ object MonopartiteStatefulTableSuite extends FunSuite:
           MonopartiteStatefulTablePrinter
             .generateMarkdown(tableAfterRejections)
 
-        expect.eql(MonopartiteStatefulTable.State.Rejects, tableAfterRejections.getState("a", "c")) and
-          expect.eql(MonopartiteStatefulTable.State.Rejects, tableAfterRejections.getState("a", "e")) and
-          expect.eql(MonopartiteStatefulTable.State.RejectedBy, tableAfterRejections.getState("a", "d"))
+        expect.same(MonopartiteStatefulTable.State.Rejects, tableAfterRejections.getState("a", "c")) and
+          expect.same(MonopartiteStatefulTable.State.Rejects, tableAfterRejections.getState("a", "e")) and
+          expect.same(MonopartiteStatefulTable.State.RejectedBy, tableAfterRejections.getState("a", "d"))

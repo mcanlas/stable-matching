@@ -55,33 +55,42 @@ object BipartiteStatefulTableSuite extends FunSuite:
 //        expect.eql(6, table.members.size) and
 //          expect.eql(6, table.preferences.size)
 
-  test("Can find a member able to propose"):
+  test("Can find an available proposer/acceptor pair"):
     val prog =
       for
         table <- BiFixtures.buildFiveAndFive.asRight
 
         _ = println(MarkdownTablePrinter.generateMarkdown(table))
 
-        firstProposer <- table
-          .findProposerAbleToPropose
+        pair <- table
+          .findProposalPair
           .toRight("no member able to propose found")
-      yield firstProposer
+      yield pair
 
     matches(prog):
-      case Right(p) =>
-        expect.eql("A", p)
+      case Right((p, a)) =>
+        expect.eql("A", p) and
+          expect.eql("O", a)
 
   test("Can apply a symmetric proposal"):
-    matches(MonoFixtures.buildPopSixEmptyTable):
-      case Right(table) =>
-        matches(table.findMemberAbleToProposeFirstDate):
-          case Some((proposer, acceptor)) =>
-            val newTable =
-              table
-                .applySymmetricProposal(proposer, acceptor)
+    val prog =
+      for
+        table <- BiFixtures.buildFiveAndFive.asRight
 
-            expect.eql(MonopartiteStatefulTable.State.ProposesTo, newTable.getState(proposer, acceptor)) and
-              expect.eql(MonopartiteStatefulTable.State.ProposedBy, newTable.getState(acceptor, proposer))
+        (p, a) <- table
+          .findProposalPair
+          .toRight("no member able to propose found")
+
+        tableAfterProposal =
+          table.applySymmetricProposal(p, a)
+
+        _ = println(MarkdownTablePrinter.generateMarkdown(tableAfterProposal))
+      yield (p, a, tableAfterProposal)
+
+    matches(prog):
+      case Right((p, a, tbl)) =>
+        expect.same(BipartiteStatefulTable.State.ProposesTo, tbl.proposerStates(p -> a)) and
+          expect.same(BipartiteStatefulTable.State.ProposedBy, tbl.acceptorStates(a -> p))
 
   test("Can do multiple iterations"):
     // https://www.youtube.com/watch?v=5QLxAp8mRKo
@@ -149,6 +158,6 @@ object BipartiteStatefulTableSuite extends FunSuite:
           MonopartiteStatefulTablePrinter
             .generateMarkdown(tableAfterRejections)
 
-        expect.eql(MonopartiteStatefulTable.State.Rejects, tableAfterRejections.getState("a", "c")) and
-          expect.eql(MonopartiteStatefulTable.State.Rejects, tableAfterRejections.getState("a", "e")) and
-          expect.eql(MonopartiteStatefulTable.State.RejectedBy, tableAfterRejections.getState("a", "d"))
+        expect.same(MonopartiteStatefulTable.State.Rejects, tableAfterRejections.getState("a", "c")) and
+          expect.same(MonopartiteStatefulTable.State.Rejects, tableAfterRejections.getState("a", "e")) and
+          expect.same(MonopartiteStatefulTable.State.RejectedBy, tableAfterRejections.getState("a", "d"))

@@ -236,7 +236,3 @@ object MonopartiteStatefulTable:
     case ProposedBy
     case Rejects
     case RejectedBy
-
-  object State:
-    given Eq[State] =
-      Eq.fromUniversalEquals

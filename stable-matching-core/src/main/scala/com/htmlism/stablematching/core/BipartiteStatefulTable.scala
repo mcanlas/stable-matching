@@ -12,9 +12,11 @@ final case class BipartiteStatefulTable[P, A](
     proposerStates: Map[(P, A), BipartiteStatefulTable.State],
     acceptorStates: Map[(A, P), BipartiteStatefulTable.State]
 ):
-  def findProposerAbleToPropose: Option[P] =
+  import BipartiteStatefulTable.*
+
+  def findProposalPair: Option[(P, A)] =
     proposerPreferences
-      .foldLeft(Option.empty[P]):
+      .foldLeft(Option.empty[(P, A)]):
         case (acc, (p, as)) =>
           acc match
             case Some(x) =>
@@ -27,18 +29,52 @@ final case class BipartiteStatefulTable[P, A](
                   .nonEmpty
 
               if hasProposal then None
-              else p.some
+              else
+                val firstAcceptorFree =
+                  as
+                    .find(a => proposerStates((p, a)) == BipartiteStatefulTable.State.Free)
+
+                firstAcceptorFree
+                  .tupleLeft(p)
+
+  /**
+    * Applies a symmetric proposal between two members
+    */
+  def applySymmetricProposal(proposer: P, acceptor: A): BipartiteStatefulTable[P, A] =
+    val updatedProposerStates =
+      proposerStates
+        .updated((proposer, acceptor), State.ProposesTo)
+
+    val updatedAcceptorStates =
+      acceptorStates
+        .updated((acceptor, proposer), State.ProposedBy)
+
+    copy(
+      proposerStates = updatedProposerStates,
+      acceptorStates = updatedAcceptorStates
+    )
+
+//  /**
+//   * Applies a symmetric rejection between two members
+//   */
+//  def applySymmetricRejection(proposer: P, acceptor: A): BipartiteStatefulTable[P, A] =
+//    val updatedCells =
+//      cells
+//        .updated((proposer, acceptor), BipartiteStatefulTable.State.Rejects)
+//        .updated((acceptor, proposer), BipartiteStatefulTable.State.RejectedBy)
+//
+//    this.copy(cells = updatedCells)
 
 object BipartiteStatefulTable:
-  given [A, B]: Tabular[BipartiteStatefulTable[A, B]] with
-    def headers(table: BipartiteStatefulTable[A, B]): List[String] =
+  given [P, A]: Tabular[BipartiteStatefulTable[P, A]] with
+    def headers(table: BipartiteStatefulTable[P, A]): List[String] =
       val numCols =
         (1 to table.proposerPreferences.size)
           .map(n => s"#$n")
 
       (Iterator("Proposers") ++ numCols ++ Iterator("Acceptors") ++ numCols).toList
 
-    def rows(table: BipartiteStatefulTable[A, B]): List[List[String]] =
+    def rows(table: BipartiteStatefulTable[P, A]): List[List[String]] =
       val zippedKeys =
         table
           .proposerPreferences
