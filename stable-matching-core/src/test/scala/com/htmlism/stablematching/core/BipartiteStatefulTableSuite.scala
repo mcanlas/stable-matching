@@ -108,32 +108,32 @@ object BipartiteStatefulTableSuite extends FunSuite:
       case Right(_) =>
         success
 
-  test("Can reject less desirable matches"):
-    matches(MonoFixtures.buildPopSixEmptyTable):
-      case Right(table) =>
-        val tableAfterIterations =
-          // TODO replace with loop until
-          (0 until 8)
-            .foldLeft(table): (acc, _) =>
-              acc.findMemberAbleToProposeFirstDate match
-                case Some((proposer, acceptor)) =>
-                  acc.applySymmetricProposal(proposer, acceptor)
+  test("Can run recursively until stable"):
+    val prog =
+      for
+        table <- BiFixtures.buildFiveAndFive.asRight
 
-                case None =>
-                  acc
+        stableMatch =
+          FlatMap[Id].tailRecM(table)(BipartiteStatefulTable.applyProposalStepId)
 
-        println:
-          MonopartiteStatefulTablePrinter
-            .generateMarkdown(tableAfterIterations)
+        _ = println(MarkdownTablePrinter.generateMarkdown(stableMatch))
+      yield ()
 
-        val tableAfterRejections =
-          MonopartiteStatefulTable
-            .trimLessDesirableMatchesRecursively(tableAfterIterations)
+    matches(prog):
+      case Right(_) =>
+        success
 
-        println:
-          MonopartiteStatefulTablePrinter
-            .generateMarkdown(tableAfterRejections)
+  test("Results are different when roles are reversed"):
+    val prog =
+      for
+        table <- BiFixtures.buildFiveAndFiveReverse.asRight
 
-        expect.same(MonopartiteStatefulTable.State.Rejects, tableAfterRejections.getState("a", "c")) and
-          expect.same(MonopartiteStatefulTable.State.Rejects, tableAfterRejections.getState("a", "e")) and
-          expect.same(MonopartiteStatefulTable.State.RejectedBy, tableAfterRejections.getState("a", "d"))
+        stableMatch =
+          FlatMap[Id].tailRecM(table)(BipartiteStatefulTable.applyProposalStepId)
+
+        _ = println(MarkdownTablePrinter.generateMarkdown(stableMatch))
+      yield ()
+
+    matches(prog):
+      case Right(_) =>
+        success

@@ -43,3 +43,14 @@ object BiFixtures:
       ListMap.from(proposerStates),
       ListMap.from(acceptorStates)
     )
+
+  def buildFiveAndFiveReverse: BipartiteStatefulTable[String, String] =
+    val tbl =
+      buildFiveAndFive
+
+    BipartiteStatefulTable(
+      tbl.acceptorPreferences,
+      tbl.proposerPreferences,
+      tbl.acceptorStates,
+      tbl.proposerStates
+    )

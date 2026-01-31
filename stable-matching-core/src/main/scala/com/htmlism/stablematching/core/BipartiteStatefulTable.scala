@@ -157,3 +157,15 @@ object BipartiteStatefulTable:
     case ProposedBy
     case Rejects
     case RejectedBy
+
+  def applyProposalStepId[P, A](
+      x: BipartiteStatefulTable[P, A]
+  ): Either[BipartiteStatefulTable[P, A], BipartiteStatefulTable[P, A]] =
+    x.findProposalPair match
+      case None =>
+        x.asRight
+
+      case Some((p, a)) =>
+        x
+          .applySymmetricProposal(p, a)
+          .asLeft
