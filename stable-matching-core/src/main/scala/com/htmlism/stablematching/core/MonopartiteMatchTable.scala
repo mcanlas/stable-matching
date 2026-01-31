@@ -93,11 +93,8 @@ final case class MonopartiteMatchTable[A](
     yield proposerWithCycle
 
 object MonopartiteMatchTable:
-  given [A]: MarkdownTable[MonopartiteMatchTable[A]] with
-    val width: Int =
-      2
-
-    val headers: List[String] =
+  given [A]: Tabular[MonopartiteMatchTable[A]] with
+    def headers(x: MonopartiteMatchTable[A]): List[String] =
       List("Roommate", "Matches")
 
     def rows(table: MonopartiteMatchTable[A]): List[List[String]] =

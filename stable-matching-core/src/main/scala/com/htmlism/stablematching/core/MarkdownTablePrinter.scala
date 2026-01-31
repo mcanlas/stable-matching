@@ -3,18 +3,18 @@ package com.htmlism.stablematching.core
 import scala.util.chaining.*
 
 object MarkdownTablePrinter:
-  def generateMarkdown[A: MarkdownTable](table: A): String =
-    val ev = summon[MarkdownTable[A]]
+  def generateMarkdown[A: Tabular](table: A): String =
+    val ev = summon[Tabular[A]]
 
     val headerRow =
       ev
-        .headers
+        .headers(table)
         .mkString(" | ")
         .pipe(surround("| ", " |"))
 
     val lineRow =
       List
-        .fill(ev.width)("---")
+        .fill(ev.width(table))("---")
         .mkString(" | ")
         .pipe(surround("| ", " |"))
 

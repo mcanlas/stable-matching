@@ -60,6 +60,8 @@ object BipartiteStatefulTableSuite extends FunSuite:
       for
         table <- BiFixtures.buildFiveAndFive.asRight
 
+        _ = println(MarkdownTablePrinter.generateMarkdown(table))
+
         firstProposer <- table
           .findProposerAbleToPropose
           .toRight("no member able to propose found")

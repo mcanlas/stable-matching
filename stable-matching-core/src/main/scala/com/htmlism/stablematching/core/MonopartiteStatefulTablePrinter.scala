@@ -51,7 +51,7 @@ object MonopartiteStatefulTablePrinter:
   private def surround(left: String, right: String)(s: String): String =
     s"$left$s$right"
 
-  private def stateToString[A: Show](state: MonopartiteStatefulTable.State): String =
+  private def stateToString(state: MonopartiteStatefulTable.State): String =
     state match
       case MonopartiteStatefulTable.State.Free =>
         "➖"
