@@ -17,7 +17,7 @@ object OrderedBiMap:
     *   Acceptor type
     */
   // TODO add method to have matches as ordered output
-  case class Total[A: Order, B: Order](populationA: ListSet[A], populationB: ListSet[B], ab: Map[A, B], ba: Map[B, A]):
+  case class Total[A, B](populationA: ListSet[A], populationB: ListSet[B], ab: Map[A, B], ba: Map[B, A]):
     assert(populationA.size === populationB.size, "proposers and acceptors must be the same size")
     assert(ab.size === ba.size, "mapping must be bijective")
 
@@ -28,7 +28,7 @@ object OrderedBiMap:
     assert(populationB.toSet === ab.values.toSet, "proposer values must be total")
 
   object Total:
-    def empty[A: Order, B: Order](populationA: ListSet[A], populationB: ListSet[B]): Total[A, B] =
+    def empty[A, B](populationA: ListSet[A], populationB: ListSet[B]): Total[A, B] =
       Total(populationA, populationB, Map.empty, Map.empty)
 
   /**
@@ -52,4 +52,4 @@ object OrderedBiMap:
     def empty[A: Eq, B: Eq]: Partial[A, B] =
       Partial(Map.empty, Map.empty)
 
-case class OrderedBiMap[A: Eq, B: Eq]()
+case class OrderedBiMap[A, B]()

@@ -111,18 +111,7 @@ object BipartiteMatcher:
       proposerPreferences: Map[A, NonEmptyList[B]],
       acceptorPreferences: Map[B, NonEmptyList[A]],
       matching: OrderedBiMap.Partial[A, B]
-  ):
-    /**
-      * Assign a matching to the next proposer that isn't already matched
-      *
-      * @return
-      *   Right if a match was applied, left if no match was applied
-      */
-    def applyOne: Either[OrderedBiMap.Total[A, B], State[A, B]] =
-      if true then
-        Right:
-          copy()
-      else Left(???)
+  )
 
   enum Error:
     case MismatchedPopulationSizes(proposers: Int, acceptors: Int)

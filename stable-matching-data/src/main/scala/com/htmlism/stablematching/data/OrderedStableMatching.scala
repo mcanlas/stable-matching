@@ -15,7 +15,7 @@ object OrderedStableMatching:
     *   The roommate type
     */
   // TODO add method to have matches as ordered output
-  case class Total[A: Eq](population: ListSet[A], mapping: Map[A, A]):
+  case class Total[A](population: ListSet[A], mapping: Map[A, A]):
     assert(population.toSet === mapping.keySet, "mapping keys must be total")
     assert(population.toSet === mapping.values.toSet, "mapping values must be total")
 
