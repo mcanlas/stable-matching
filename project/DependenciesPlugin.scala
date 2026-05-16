@@ -26,17 +26,13 @@ object DependenciesPlugin extends AutoPlugin {
             )
           )
 
-      def withTesting: Project = {
-        val weaverVersion =
-          "0.8.4"
-
+      def withTesting: Project =
         p.settings(
           libraryDependencies ++= Seq(
-            "com.disneystreaming" %% "weaver-cats"       % weaverVersion % Test,
-            "com.disneystreaming" %% "weaver-scalacheck" % weaverVersion % Test
+            "org.typelevel" %% "weaver-cats"       % Versions.weaver % Test,
+            "org.typelevel" %% "weaver-scalacheck" % Versions.weaver % Test
           )
         )
-      }
     }
   }
 }
