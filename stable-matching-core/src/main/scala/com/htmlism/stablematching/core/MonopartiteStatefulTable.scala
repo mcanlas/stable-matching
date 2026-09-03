@@ -145,7 +145,7 @@ object MonopartiteStatefulTable:
                     acceptor
 
             proposals match
-              case keeper :: firstRejection :: _ =>
+              case _ :: firstRejection :: _ => // keeper, remaining proposals
                 Some(proposer -> firstRejection)
 
               case _ =>

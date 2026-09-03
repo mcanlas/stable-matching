@@ -141,7 +141,7 @@ object MonopartiteMatchTableSuite extends FunSuite:
           MonopartiteMatchTable
             .build(tableAfterRejections)
 
-        cycle <-
+        _ <- // cycle
           matchTable.findCycle
 
         tableAfterCycleRemovalStep <-
@@ -150,7 +150,8 @@ object MonopartiteMatchTableSuite extends FunSuite:
 
         tableAfterCycleRemoval <-
           tableAfterCycleRemovalStep match
-            case Right(t)      => Left("too early, not correct")
+            case Right(_) => // t
+              Left("too early, not correct")
             case Left(oneEval) => Right(oneEval)
 
         _ = println:
@@ -185,10 +186,10 @@ object MonopartiteMatchTableSuite extends FunSuite:
           MonopartiteMatchTable
             .build(tableAfterRejections)
 
-        cycle <-
+        _ <- // cycle
           matchTable.findCycle
 
-        tableAfterCycleRemovalStep <-
+        _ <- // tableAfterCycleRemovalStep
           MonopartiteMatchTable
             .findAndDeleteCycleStep(matchTable)
 

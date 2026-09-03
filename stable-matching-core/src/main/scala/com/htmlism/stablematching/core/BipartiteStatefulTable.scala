@@ -64,7 +64,7 @@ final case class BipartiteStatefulTable[P, A](
     assert(proposals.size <= 2, s"More than two proposals found for acceptor $a")
 
     proposals match
-      case keeper :: dropped :: Nil =>
+      case _ :: dropped :: Nil => // keeper
         val updatedProposerStates =
           proposerStates
             .updated((dropped, a), State.RejectedBy)
